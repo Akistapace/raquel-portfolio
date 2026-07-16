@@ -1,0 +1,5 @@
+Assets em uso (vindos de src/assets/raquel):
+- retrato.png (hero + sobre)
+- trabalho-reels.png + video-reels.mp4 (Reels & TikTok — o video toca no preview)
+- trabalho-carrossel.png, trabalho-youtube.png, trabalho-foto.png, trabalho-digital.jpg
+Para trocar qualquer um, substitua o arquivo mantendo o nome, ou ajuste os caminhos em src/data/portfolio.ts
