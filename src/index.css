@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+@theme {
+  /* Sticker-collage palette: papel branco, tinta preta, rosa e lavanda */
+  --color-paper: #ffffff;
+  --color-ink: #141414;
+  --color-pink: #ec79b4; /* rosa vivo das pílulas */
+  --color-pink-soft: #f6cfe5; /* tinta de rosa */
+  --color-lavender: #b5a6dc; /* lavanda das pílulas */
+  --color-lavender-soft: #ddd4f0; /* tinta de lavanda */
+  --color-smoke: #6b6b6b; /* texto secundário */
+
+  --font-display: "Playfair Display", "Georgia", serif;
+  --font-body: "Archivo", "Helvetica Neue", sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html {
+  scroll-behavior: initial;
+}
+
+body {
+  @apply bg-paper text-ink font-body antialiased;
+  overscroll-behavior-y: none;
+}
+
+::selection {
+  background: var(--color-pink);
+  color: var(--color-paper);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-pink);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* cursor customizado ativo: esconde o nativo */
+html.custom-cursor,
+html.custom-cursor a,
+html.custom-cursor button,
+html.custom-cursor [data-cursor] {
+  cursor: none;
+}
+
+/* words split for GSAP reveals: overflow mask.
+   padding/margin compensados preservam descenders (Q, g, j) sem afetar o layout */
+.line-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+}
+.line-mask > span {
+  display: inline-block;
+  will-change: transform;
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+}
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* flutuação lenta das formas decorativas */
+@keyframes shape-drift {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  33% {
+    transform: translate(3%, -4%) rotate(3deg);
+  }
+  66% {
+    transform: translate(-2%, 3%) rotate(-2deg);
+  }
+}
+.shape-drift {
+  animation: shape-drift 12s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  .shape-drift {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
