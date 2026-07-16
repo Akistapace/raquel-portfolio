@@ -1,25 +1,39 @@
-# Portfólio — Raquel
+<div align="center">
 
-Portfólio one-page em React com estética sticker-collage editorial: papel branco, tinta preta, pílulas rosa (`#EC79B4`) e lavanda (`#B5A6DC`) com contorno, setas ↗, Playfair Display bold em caixa-alta (display) + Archivo (corpo). Contato fecha em painel escuro para contraste.
+# ✦ Portfólio Raquel Aquistapace ✦
 
-## Rodar
+**One-page editorial com estética sticker-collage**
 
-```bash
-npm install
-npm run dev
-```
+Papel branco, tinta preta,
+pílulas rosa e lavanda, serifa gigante em caixa-alta e animações em todo canto.
 
-## Assets do Canva
+![React](https://img.shields.io/badge/React_19-149ECA?style=for-the-badge&logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-9575CD?style=for-the-badge&logo=vite&logoColor=white)
+![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_v4-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![GSAP](https://img.shields.io/badge/GSAP_+_ScrollTrigger-0AE448?style=for-the-badge&logo=greensock&logoColor=black)
 
-O link do Canva exige login, então os assets não puderam ser baixados automaticamente. Exporte as imagens/vídeos do Canva e salve em `public/assets/` com os nomes listados em [src/data/portfolio.ts](src/data/portfolio.ts) (ex.: `retrato.jpg`, `projeto-aurora.jpg`…). Enquanto o arquivo não existe, cada mídia mostra um placeholder com gradiente. Todo o texto do site também é editado nesse mesmo arquivo de dados.
+<br/>
 
-## Stack
+![Hero do portfólio RAQUEL em serifa gigante cercada de pílulas sticker](docs/hero.png)
 
-- Vite + React 19 + TypeScript
-- Tailwind CSS v4 (tokens em `src/index.css`) + componentes padrão shadcn (`cn`, CVA em `src/components/atoms/button.tsx`)
-- GSAP + ScrollTrigger para animações
+</div>
 
-## Arquitetura (design atômico)
+---
+
+## 🎨 Direção visual
+
+| Token | Valor | Uso |
+| --- | --- | --- |
+| `pink` | `#EC79B4` | pílulas, destaques, cursor |
+| `lavender` | `#B5A6DC` | pílulas alternadas |
+| `ink` | quase-preto | texto, contornos 2px |
+| `paper` | branco | fundo |
+
+Tipografia: **Playfair Display** bold caixa-alta no display, **Archivo** no corpo.
+Contato fecha a página num painel escuro para contraste.
+
+## 🧱 Arquitetura (design atômico)
 
 ```text
 src/
@@ -27,21 +41,32 @@ src/
   lib/utils.ts             ← cn()
   hooks/                   ← use-lenis (scroll suave), use-magnetic, use-word-reveal
   components/
-    atoms/      button, badge (pílula), eyebrow (pílula), split-words, placeholder-media, cursor
+    atoms/      button, badge, eyebrow, split-words, placeholder-media, cursor
     molecules/  section-heading, marquee
     organisms/  preloader, navbar, hero, manifesto, works-list, services, contact
   App.tsx                  ← composição das seções
 ```
 
-## Animações (referências: Active Theory / Dogstudio)
+Conteúdo 100% separado da apresentação: para trocar textos, projetos ou links,
 
-- **Fundo de pílulas:** pílulas e círculos sticker fixos nas laterais (`pill-field.tsx`), com flutuação contínua, parallax de scroll em velocidades diferentes e parallax de mouse; entram em elástico após o preloader.
-- **Preloader:** "PORTFÓLIO" em serifa + contador 000→100 em pílula; cortina sobe ao terminar e o reveal do hero dispara junto com a subida.
-- **Cursor customizado:** ponto rosa + anel com atraso; cresce sobre links.
-- **Scroll suave com inércia:** Lenis sincronizado com o ScrollTrigger.
-- **Hero collage:** letras sobem em stagger, stickers (pílulas, círculo-seta, ↗) entram com `back.out` e reagem ao mouse em camadas de profundidade (parallax).
-- **Manifesto:** texto gigante revelado palavra por palavra conforme o scroll (scrub).
-- **Projetos:** lista editorial; no desktop um preview flutuante segue o cursor com rotação por velocidade; no mobile a mídia aparece inline.
-- **Serviços:** faixa de texto vazado que anda com o scroll + linhas com stagger.
-- **Contato:** painel escuro entra como cortina (cantos que se achatam) com botão circular magnético.
-- `prefers-reduced-motion` desliga tudo.
+## ✨ Animações
+
+Tudo respeita `prefers-reduced-motion`.
+
+- **Preloader**: "PORTFÓLIO" em serifa + contador `000→100`; a cortina sobe e o reveal do hero dispara em sincronia.
+- **Fundo de pílulas**: stickers fixos nas laterais com flutuação contínua, parallax de scroll em velocidades diferentes e parallax de mouse; entram em elástico após o preloader.
+- **Hero collage**: letras sobem em stagger a partir de máscaras, stickers entram com `back.out` e reagem ao mouse em camadas de profundidade.
+- **Cursor customizado**: ponto rosa + anel com atraso; cresce sobre links.
+- **Scroll suave**: Lenis com inércia, sincronizado com o ScrollTrigger.
+- **Manifesto**: texto gigante revelado palavra por palavra no scrub; retrato com reveal bruto (foto sobe de dentro da máscara, base em semicírculo) + parallax.
+- **Projetos**: lista editorial com âncoras de scroll: a linha que cruza o centro da tela vira o item ativo e o preview aparece ancorado nela, sem depender do mouse; no hover o preview segue o cursor com rotação por velocidade; no mobile a mídia é inline.
+- **Serviços**: faixa de texto vazado que anda com o scroll + linhas em stagger.
+- **Contato**: painel escuro entra como cortina com botão circular magnético.
+
+## 🛠 Stack
+
+- [Vite](https://vite.dev) + [React 19](https://react.dev) + TypeScript
+- [Tailwind CSS v4](https://tailwindcss.com): tokens via CSS, sem config JS
+- [GSAP](https://gsap.com) + ScrollTrigger: timelines, scrub e âncoras de scroll
+- [Lenis](https://lenis.darkroom.engineering): scroll suave
+- Padrões shadcn (`cn`, CVA) nos componentes base
