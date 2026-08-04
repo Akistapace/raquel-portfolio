@@ -23,13 +23,13 @@ export const profile = {
   experience:
     'Do recrutamento ao ensino, passando por psicologia, doceria, viagens e beleza, já criei conteúdo para realidades bem diferentes. Como social media, produzo para Instagram, Facebook, YouTube e TikTok: edição de vídeo e foto, legendas, narração, ebooks, curso online, identidade visual, CTAs e roteiros para lives. E quando o cliente quer aprender a fazer sozinho, eu ensino: plataformas, aplicativos e imagem visual.',
   portrait: asset('/assets/raquel-no-bg.png'),
-  phone: '+55 (51) 98045-1745',
-  whatsapp: 'https://wa.me/5551980451745',
+  phone: '+55 51 9880451732',
+  whatsapp: 'https://wa.me/55519880451732',
   instagram: '@raquelruffinomkt',
   socials: [
     { label: 'Instagram', href: 'https://instagram.com/raquelruffinomkt' },
     { label: 'LinkedIn', href: 'https://www.linkedin.com/in/raquelrnascimento/' },
-    { label: 'WhatsApp', href: 'https://wa.me/5551980451745' },
+    { label: 'WhatsApp', href: 'https://wa.me/55519880451732' },
   ],
   skills: [
     'Reels & TikTok',
@@ -98,18 +98,53 @@ export const projects: Project[] = [
       { type: 'video', src: asset('/assets/carrossel-7.mp4') },
       { type: 'video', src: asset('/assets/carrossel-8.mp4') },
       { type: 'video', src: asset('/assets/carrossel-9.mp4') },
+    ],
+  },
+  {
+    id: 'posts',
+    title: 'Posts',
+    category: 'Design',
+    year: 'IG · LI',
+    description: 'Peças únicas para feed: capa, texto e identidade em uma imagem só.',
+    image: asset('/assets/carrossel-post-1.jpeg'),
+    hue: '#FBE3B0',
+    platforms: ['Instagram', 'LinkedIn'],
+    gallery: [
       { type: 'image', src: asset('/assets/carrossel-post-1.jpeg') },
       { type: 'image', src: asset('/assets/carrossel-post-2.jpeg') },
       { type: 'image', src: asset('/assets/carrossel-post-3.jpeg') },
-      { type: 'image', src: asset('/assets/carrossel-post-4.jpeg') },
-      { type: 'image', src: asset('/assets/carrossel-post-5.jpeg') },
-      { type: 'image', src: asset('/assets/carrossel-post-6.jpeg') },
+    ],
+  },
+  {
+    id: 'stories',
+    title: 'Stories',
+    category: 'Design',
+    year: 'IG',
+    description: 'Stories rápidos pra manter a audiência por perto todos os dias.',
+    image: asset('/assets/criativos1.jpeg'),
+    hue: '#C6D8F0',
+    platforms: ['Instagram'],
+    gallery: [
+      { type: 'image', src: asset('/assets/criativos1.jpeg') },
+      { type: 'image', src: asset('/assets/carrossel-post-12.jpeg') },
+    ],
+  },
+  {
+    id: 'criativos',
+    title: 'Criativos',
+    category: 'Design',
+    year: 'IG · LI',
+    description: 'Artes avulsas prontas pra usar: banners, capas e peças de campanha.',
+    image: asset('/assets/criativos3.jpeg'),
+    hue: '#F5C6AA',
+    platforms: ['Instagram', 'LinkedIn'],
+    gallery: [
+      { type: 'image', src: asset('/assets/criativos3.jpeg') },
+      { type: 'image', src: asset('/assets/criativos4.jpeg') },
       { type: 'image', src: asset('/assets/carrossel-post-7.jpeg') },
       { type: 'image', src: asset('/assets/carrossel-post-8.jpeg') },
-      { type: 'image', src: asset('/assets/carrossel-post-9.jpeg') },
+      { type: 'image', src: asset('/assets/criativos.jpeg') },
       { type: 'image', src: asset('/assets/carrossel-post-10.jpeg') },
-      { type: 'image', src: asset('/assets/carrossel-post-11.jpeg') },
-      { type: 'image', src: asset('/assets/carrossel-post-12.jpeg') },
     ],
   },
   {
@@ -165,29 +200,7 @@ export const projects: Project[] = [
       { type: 'image', src: asset('/assets/identidade-visual-logo.jpeg') },
       { type: 'image', src: asset('/assets/identidade-visual-cartao-1.jpeg') },
       { type: 'image', src: asset('/assets/identidade-visual-cartao-2.jpeg') },
+      { type: 'image', src: asset('/assets/identidade-visual-cartao.jpeg') },
     ],
-  },
-]
-
-export const services = [
-  {
-    name: 'Criação de conteúdo',
-    detail: 'Roteiro, vídeo, edição, narração e transições, com versatilidade de temas e estilos.',
-  },
-  {
-    name: 'Design para redes',
-    detail: 'Carrosséis, capas, títulos, legendas e identidade visual.',
-  },
-  {
-    name: 'Fotografia',
-    detail: 'Produção e edição de fotos, com desenvoltura em frente às câmeras.',
-  },
-  {
-    name: 'Produtos digitais',
-    detail: 'Ebook, curso online e link na bio, da criação à edição.',
-  },
-  {
-    name: 'Mentoria de conteúdo',
-    detail: 'Ensino você a criar seus próprios conteúdos: plataformas, apps e imagem visual.',
   },
 ]
