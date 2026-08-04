@@ -39,7 +39,8 @@ export function MaterialsSection({ activeProjectId }: MaterialsSectionProps) {
   useLayoutEffect(() => {
     const pin = pinRef.current
     const circle = circleRef.current
-    if (!pin || !circle) return
+    const content = contentRef.current
+    if (!pin || !circle || !content) return
 
     const mm = gsap.matchMedia(pin)
     mm.add('(prefers-reduced-motion: no-preference)', () => {
@@ -51,6 +52,12 @@ export function MaterialsSection({ activeProjectId }: MaterialsSectionProps) {
       // um translate percentual "congelado" pelo GSAP descentralizaria o
       // círculo conforme ele cresce.
       gsap.set(circle, { xPercent: -50, yPercent: -50, width: dotSize, height: dotSize, y: riseFrom })
+      // a margem negativa no conteúdo (ver JSX) já deixa o topo dele
+      // exatamente no ponto onde o pin solta — mas isso também o coloca
+      // dentro do alcance de scroll ANTES disso, então ele ficaria
+      // "espiando" nos vãos do círculo enquanto ele ainda tá crescendo.
+      // Fica invisível até o pin soltar de verdade (onLeave/onEnterBack).
+      gsap.set(content, { autoAlpha: 0 })
 
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -60,6 +67,8 @@ export function MaterialsSection({ activeProjectId }: MaterialsSectionProps) {
           pin: true,
           scrub: true,
           invalidateOnRefresh: true,
+          onLeave: () => gsap.set(content, { autoAlpha: 1 }),
+          onEnterBack: () => gsap.set(content, { autoAlpha: 0 }),
         },
       })
       // sobe até o centro, depois abre — termina exatamente quando cobre a
@@ -105,7 +114,10 @@ export function MaterialsSection({ activeProjectId }: MaterialsSectionProps) {
         />
       </div>
 
-      <div ref={contentRef} className="bg-ink text-paper">
+      {/* -mt cancela a altura própria da caixa do pin (h-svh, que sobra parada
+          e preta depois que solta) — o conteúdo passa a começar exatamente
+          onde o pin solta, sem esse andar extra vazio no meio. */}
+      <div ref={contentRef} className="-mt-[100svh] bg-ink text-paper">
         <div className="mx-auto w-full max-w-7xl px-6 py-28 sm:px-10 lg:py-36">
           <SectionHeading eyebrow="Serviços" title="Mais *criações*" tone="dark" />
 

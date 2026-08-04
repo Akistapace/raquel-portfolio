@@ -113,7 +113,7 @@ export function WorksList({ onSelectProject }: WorksListProps) {
   }
 
   return (
-    <div ref={scope} className="relative mx-auto w-full max-w-7xl px-6 py-28 sm:px-10 lg:py-36">
+    <div ref={scope} className="relative mx-auto w-full max-w-7xl px-6 pt-28 pb-10 sm:px-10 lg:pt-36 lg:pb-14">
       <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <SectionHeading eyebrow="Serviços" title="O que eu *crio*" />
         <Button variant="outline" size="sm" onClick={() => selectAndScroll()} className="shrink-0">
