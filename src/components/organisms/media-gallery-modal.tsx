@@ -12,26 +12,28 @@ type MediaGalleryModalProps = {
   projects: Project[]
   /** id do projeto pra abrir já filtrado; undefined = aba "Todos" */
   initialProjectId?: string
-  /** ponto da tela onde o botão foi clicado — de onde o círculo nasce */
-  origin: { x: number; y: number }
   onClose: () => void
 }
 
 const ALL_TAB = 'todos'
 
-/** raio (px) suficiente pro círculo cobrir a tela inteira a partir do ponto de origem */
-function coverRadius(x: number, y: number) {
-  const w = window.innerWidth
-  const h = window.innerHeight
-  return Math.hypot(Math.max(x, w - x), Math.max(y, h - y))
+/** centro da tela — de onde o círculo nasce e pra onde encolhe */
+function screenCenter() {
+  return { x: window.innerWidth / 2, y: window.innerHeight / 2 }
+}
+
+/** raio (px) suficiente pro círculo cobrir a tela inteira a partir do centro */
+function coverRadius() {
+  const { x, y } = screenCenter()
+  return Math.hypot(x, y)
 }
 
 /**
  * Portal em tela cheia (mesma vibe escura do rodapé/Contato): abre com um
- * círculo que nasce no botão clicado e preenche a tela; fecha do mesmo jeito
+ * círculo que nasce no centro da tela e preenche tudo; fecha do mesmo jeito
  * ao contrário.
  */
-export function MediaGalleryModal({ projects, initialProjectId, origin, onClose }: MediaGalleryModalProps) {
+export function MediaGalleryModal({ projects, initialProjectId, onClose }: MediaGalleryModalProps) {
   const panelRef = useRef<HTMLDivElement>(null)
   const [tab, setTab] = useState(initialProjectId ?? ALL_TAB)
   const [focused, setFocused] = useState<{ projectId: string; index: number } | null>(null)
@@ -50,16 +52,17 @@ export function MediaGalleryModal({ projects, initialProjectId, origin, onClose 
   useLayoutEffect(() => {
     const el = panelRef.current
     if (!el) return
-    const radius = coverRadius(origin.x, origin.y)
-    const from = `circle(0px at ${origin.x}px ${origin.y}px)`
-    const to = `circle(${radius}px at ${origin.x}px ${origin.y}px)`
+    const { x, y } = screenCenter()
+    const radius = coverRadius()
+    const from = `circle(0px at ${x}px ${y}px)`
+    const to = `circle(${radius}px at ${x}px ${y}px)`
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       gsap.set(el, { clipPath: to })
       return
     }
     gsap.fromTo(el, { clipPath: from }, { clipPath: to, duration: 0.9, ease: 'power3.out' })
-  }, [origin.x, origin.y])
+  }, [])
 
   const handleClose = () => {
     const el = panelRef.current
@@ -69,14 +72,13 @@ export function MediaGalleryModal({ projects, initialProjectId, origin, onClose 
       onClose()
       return
     }
-    const radius = coverRadius(origin.x, origin.y)
+    const { x, y } = screenCenter()
     gsap.to(el, {
-      clipPath: `circle(0px at ${origin.x}px ${origin.y}px)`,
+      clipPath: `circle(0px at ${x}px ${y}px)`,
       duration: 0.6,
       ease: 'power3.in',
       onComplete: onClose,
     })
-    void radius
   }
 
   useLayoutEffect(() => {

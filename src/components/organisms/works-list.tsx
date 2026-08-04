@@ -1,5 +1,4 @@
 import { useLayoutEffect, useRef, useState } from 'react'
-import type { MouseEvent as ReactMouseEvent } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { projects } from '@/data/portfolio'
@@ -21,11 +20,9 @@ export function WorksList() {
   const scope = useRef<HTMLDivElement>(null)
   const previewRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState<number | null>(null)
-  const [galleryModal, setGalleryModal] = useState<{
-    open: boolean
-    projectId?: string
-    origin: { x: number; y: number }
-  }>({ open: false, origin: { x: 0, y: 0 } })
+  const [galleryModal, setGalleryModal] = useState<{ open: boolean; projectId?: string }>({
+    open: false,
+  })
   const hoveringRef = useRef(false)
   const scrollActiveRef = useRef<number | null>(null)
   const moveRef = useRef<{
@@ -35,10 +32,8 @@ export function WorksList() {
   } | null>(null)
   useWordReveal(scope)
 
-  const openGallery = (e: ReactMouseEvent, projectId?: string) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setGalleryModal({ open: true, projectId, origin: { x: e.clientX, y: e.clientY } })
+  const openGallery = (projectId?: string) => {
+    setGalleryModal({ open: true, projectId })
   }
 
   // move o preview até um ponto fixo, ancorado na linha ativa (modo scroll)
@@ -189,25 +184,16 @@ export function WorksList() {
     <div ref={scope} className="relative mx-auto w-full max-w-7xl px-6 py-28 sm:px-10 lg:py-36">
       <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <SectionHeading eyebrow="Projetos" title="O que eu *crio*" />
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={(e) => openGallery(e, undefined)}
-          className="shrink-0"
-        >
+        <Button variant="outline" size="sm" onClick={() => openGallery()} className="shrink-0">
           Ver todos os materiais
         </Button>
       </div>
 
       <ul className="work-rows mt-16 border-t border-ink/10">
-        {projects.map((project, i) => (
-          <li key={project.id} className="work-row border-b border-ink/10">
-            <a
-              href="#contato"
-              className="group block py-8"
-              onMouseEnter={() => onRowEnter(i)}
-              onMouseLeave={onRowLeave}
-            >
+        {projects.map((project, i) => {
+          const hasGallery = project.gallery.length > 1
+          const content = (
+            <>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-8">
                 <h3
                   className={`font-display text-4xl leading-none font-bold tracking-tight uppercase transition-all duration-500 ease-out-expo sm:text-6xl lg:text-7xl ${
@@ -229,14 +215,10 @@ export function WorksList() {
                 </div>
               </div>
               <p className="mt-2 max-w-xl text-sm text-smoke">{project.description}</p>
-              {project.gallery.length > 1 && (
-                <button
-                  type="button"
-                  onClick={(e) => openGallery(e, project.id)}
-                  className="mt-3 inline-flex items-center text-xs font-semibold tracking-[0.2em] text-smoke uppercase transition-colors hover:text-pink"
-                >
+              {hasGallery && (
+                <span className="mt-3 inline-flex items-center text-xs font-semibold tracking-[0.2em] text-smoke uppercase transition-colors group-hover:text-pink">
                   Ver materiais ({project.gallery.length})
-                </button>
+                </span>
               )}
               {/* mídia inline — só em telas sem cursor fino */}
               <div className="mt-5 aspect-video overflow-hidden rounded-2xl border-2 border-ink lg:hidden">
@@ -248,9 +230,34 @@ export function WorksList() {
                   label={project.title}
                 />
               </div>
-            </a>
-          </li>
-        ))}
+            </>
+          )
+
+          return (
+            <li key={project.id} className="work-row border-b border-ink/10">
+              {hasGallery ? (
+                <button
+                  type="button"
+                  className="group block w-full py-8 text-left"
+                  onMouseEnter={() => onRowEnter(i)}
+                  onMouseLeave={onRowLeave}
+                  onClick={() => openGallery(project.id)}
+                >
+                  {content}
+                </button>
+              ) : (
+                <a
+                  href="#contato"
+                  className="group block py-8"
+                  onMouseEnter={() => onRowEnter(i)}
+                  onMouseLeave={onRowLeave}
+                >
+                  {content}
+                </a>
+              )}
+            </li>
+          )
+        })}
       </ul>
 
       {/* preview flutuante que segue o cursor (desktop) */}
@@ -281,7 +288,6 @@ export function WorksList() {
         <MediaGalleryModal
           projects={projects}
           initialProjectId={galleryModal.projectId}
-          origin={galleryModal.origin}
           onClose={() => setGalleryModal((s) => ({ ...s, open: false }))}
         />
       )}
