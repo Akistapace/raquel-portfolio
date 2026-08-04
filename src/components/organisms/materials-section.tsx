@@ -59,7 +59,7 @@ export function MaterialsSection({ activeProjectId }: MaterialsSectionProps) {
       // (título/abas) numa tela só, crescendo em scale a partir daí — evita
       // qualquer pedaço do conteúdo (que é bem mais alto que uma tela)
       // aparecer fora do círculo antes da hora.
-      gsap.set(inner, { scale: 0.001, transformOrigin: 'top center' })
+      gsap.set(inner, { scale: 0.001, opacity: 0, transformOrigin: 'top center' })
 
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -78,6 +78,8 @@ export function MaterialsSection({ activeProjectId }: MaterialsSectionProps) {
       tl.to(circle, { y: 0, ease: 'none', duration: 0.45 })
         .to(circle, { width: diameter, height: diameter, ease: 'none', duration: 0.55 })
         .to(inner, { scale: 1, ease: 'none', duration: 0.55 }, '<')
+        // opacidade fica em 0 até ~90% do total, só aparece nos 10% finais
+        .to(inner, { opacity: 1, ease: 'none', duration: 0.1 }, 0.9)
     })
     return () => mm.revert()
   }, [])
