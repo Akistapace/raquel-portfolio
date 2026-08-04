@@ -42,10 +42,11 @@ export function MaterialsSection({ activeProjectId }: MaterialsSectionProps) {
           clipPath: 'circle(150% at 50% 50%)',
           ease: 'none',
           // fica em branco (clipado) até o topo da seção chegar no meio da
-          // tela — aí o círculo cresce e termina pouco depois. Usa o topo (não
-          // o centro) do trigger pra não depender da altura do conteúdo, que
-          // varia com a aba selecionada.
-          scrollTrigger: { trigger: el, start: 'top center', end: 'top 15%', scrub: true },
+          // tela — aí o círculo cresce e só termina quando esse topo encosta
+          // no topo da viewport (preto já ocupando o topo da tela, sem sobra
+          // de branco). Usa o topo (não o centro) do trigger pra não depender
+          // da altura do conteúdo, que varia com a aba selecionada.
+          scrollTrigger: { trigger: el, start: 'top center', end: 'top top', scrub: true },
         },
       )
     })
