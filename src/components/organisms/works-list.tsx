@@ -17,21 +17,15 @@ type WorksListProps = {
 }
 
 /**
- * Lista editorial de projetos (estilo Dogstudio): títulos gigantes em serifa;
- * no desktop, um preview flutuante segue o cursor sobre o item ativo.
- * No mobile, a mídia aparece inline em cada item.
+ * Lista editorial de projetos (estilo Dogstudio): títulos gigantes em serifa,
+ * a linha ativa (hover no desktop, cruzando o centro no scroll) fica em
+ * destaque e as outras esmaecem. No mobile, a mídia aparece inline.
  */
 export function WorksList({ onSelectProject }: WorksListProps) {
   const scope = useRef<HTMLDivElement>(null)
-  const previewRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState<number | null>(null)
   const hoveringRef = useRef(false)
   const scrollActiveRef = useRef<number | null>(null)
-  const moveRef = useRef<{
-    xTo: (v: number) => void
-    yTo: (v: number) => void
-    rTo: (v: number) => void
-  } | null>(null)
   useWordReveal(scope)
 
   const selectAndScroll = (projectId?: string) => {
@@ -39,48 +33,6 @@ export function WorksList({ onSelectProject }: WorksListProps) {
     if (lenis) lenis.scrollTo('#servicos', { duration: 1.4 })
     else document.querySelector('#servicos')?.scrollIntoView({ behavior: 'smooth' })
   }
-
-  // move o preview até um ponto fixo, ancorado na linha ativa (modo scroll)
-  const anchorPreviewTo = (i: number) => {
-    const row = scope.current?.querySelectorAll<HTMLElement>('.work-row')[i]
-    const move = moveRef.current
-    if (!row || !move) return
-    const rect = row.getBoundingClientRect()
-    move.xTo(window.innerWidth * 0.72)
-    move.yTo(gsap.utils.clamp(180, window.innerHeight - 160, rect.top + rect.height / 2))
-    move.rTo(0)
-  }
-
-  // preview segue o cursor durante o hover
-  useLayoutEffect(() => {
-    const el = scope.current
-    const preview = previewRef.current
-    if (!el || !preview) return
-    if (!window.matchMedia('(pointer: fine)').matches) return
-
-    const mm = gsap.matchMedia(el)
-    mm.add('(prefers-reduced-motion: no-preference)', () => {
-      gsap.set(preview, { xPercent: -50, yPercent: -50, scale: 0.85, opacity: 0 })
-      const xTo = gsap.quickTo(preview, 'x', { duration: 0.55, ease: 'power3' })
-      const yTo = gsap.quickTo(preview, 'y', { duration: 0.55, ease: 'power3' })
-      const rTo = gsap.quickTo(preview, 'rotate', { duration: 0.7, ease: 'power3' })
-      moveRef.current = { xTo, yTo, rTo }
-      let lastX = 0
-      const onMove = (e: MouseEvent) => {
-        if (!hoveringRef.current) return
-        xTo(e.clientX)
-        yTo(e.clientY)
-        rTo(gsap.utils.clamp(-10, 10, (e.clientX - lastX) * 0.6))
-        lastX = e.clientX
-      }
-      el.addEventListener('mousemove', onMove)
-      return () => {
-        el.removeEventListener('mousemove', onMove)
-        moveRef.current = null
-      }
-    })
-    return () => mm.revert()
-  }, [])
 
   // entrada dos itens da lista
   useLayoutEffect(() => {
@@ -109,21 +61,8 @@ export function WorksList({ onSelectProject }: WorksListProps) {
     return () => mm.revert()
   }, [])
 
-  const showPreview = (i: number) => {
-    setActive(i)
-    if (previewRef.current) {
-      gsap.to(previewRef.current, { scale: 1, opacity: 1, duration: 0.45, ease: 'expo.out' })
-    }
-  }
-  const hidePreview = () => {
-    setActive(null)
-    if (previewRef.current) {
-      gsap.to(previewRef.current, { scale: 0.85, opacity: 0, duration: 0.35, ease: 'power2.in' })
-    }
-  }
-
-  // âncoras de scroll: a linha que cruza o centro da tela vira o item ativo,
-  // com o preview ancorado nela — sem depender do mouse. Hover tem prioridade.
+  // âncoras de scroll: a linha que cruza o centro da tela vira a ativa —
+  // sem depender do mouse. Hover tem prioridade sobre isso.
   useLayoutEffect(() => {
     const el = scope.current
     if (!el) return
@@ -131,8 +70,6 @@ export function WorksList({ onSelectProject }: WorksListProps) {
 
     const mm = gsap.matchMedia(el)
     mm.add('(prefers-reduced-motion: no-preference)', () => {
-      // fora da seção de projetos o preview nunca fica visível — mata inclusive
-      // o hover "preso" (scroll sem mover o mouse não dispara mouseleave)
       ScrollTrigger.create({
         trigger: el.querySelector('.work-rows'),
         start: 'top bottom',
@@ -141,7 +78,7 @@ export function WorksList({ onSelectProject }: WorksListProps) {
           if (!self.isActive) {
             hoveringRef.current = false
             scrollActiveRef.current = null
-            hidePreview()
+            setActive(null)
           }
         },
       })
@@ -154,13 +91,10 @@ export function WorksList({ onSelectProject }: WorksListProps) {
           onToggle: (self) => {
             if (self.isActive) {
               scrollActiveRef.current = i
-              if (!hoveringRef.current) {
-                anchorPreviewTo(i)
-                showPreview(i)
-              }
+              if (!hoveringRef.current) setActive(i)
             } else if (scrollActiveRef.current === i) {
               scrollActiveRef.current = null
-              if (!hoveringRef.current) hidePreview()
+              if (!hoveringRef.current) setActive(null)
             }
           },
         })
@@ -171,17 +105,11 @@ export function WorksList({ onSelectProject }: WorksListProps) {
 
   const onRowEnter = (i: number) => {
     hoveringRef.current = true
-    showPreview(i)
+    setActive(i)
   }
   const onRowLeave = () => {
     hoveringRef.current = false
-    const s = scrollActiveRef.current
-    if (s !== null) {
-      anchorPreviewTo(s)
-      showPreview(s)
-    } else {
-      hidePreview()
-    }
+    setActive(scrollActiveRef.current)
   }
 
   return (
@@ -263,30 +191,6 @@ export function WorksList({ onSelectProject }: WorksListProps) {
           )
         })}
       </ul>
-
-      {/* preview flutuante que segue o cursor (desktop) */}
-      <div
-        ref={previewRef}
-        aria-hidden
-        className="pointer-events-none fixed top-0 left-0 z-40 hidden h-64 w-88 overflow-hidden rounded-[3rem] border-2 border-ink opacity-0 shadow-[0_30px_80px_-20px_rgba(20,20,20,0.35)] lg:block"
-      >
-        {projects.map((project, i) => (
-          <div
-            key={project.id}
-            className={`absolute inset-0 transition-opacity duration-300 ${active === i ? 'opacity-100' : 'opacity-0'}`}
-          >
-            {active === i && (
-              <CyclingMedia
-                gallery={project.gallery}
-                active
-                alt={`${project.title} (${project.category})`}
-                hue={project.hue}
-                label={project.title}
-              />
-            )}
-          </div>
-        ))}
-      </div>
     </div>
   )
 }

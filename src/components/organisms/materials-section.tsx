@@ -17,12 +17,12 @@ type MaterialsSectionProps = {
 const ALL_TAB = 'todos'
 
 /**
- * Transição presa no scroll (pin, uma tela de altura): um círculo preto
- * nasce fixo no centro da tela e cresce até cobrir tudo; só depois disso o
- * pin solta e a seção de materiais (mesma cor de fundo — sem costura)
- * continua no scroll normal. Scrollando pra cima roda ao contrário sozinho,
- * porque é um scrub — some a seção no scroll normal, encolhe o círculo, e o
- * respiro em branco antes do pin dá a folga até "O que eu crio".
+ * Transição presa no scroll (pin, uma tela de altura), em 2 passos: 1) um
+ * ponto preto sobe de baixo da tela até parar no centro; 2) só aí ele abre
+ * (cresce) até cobrir tudo. No instante em que cobre 100%, o pin solta e a
+ * seção de materiais (mesma cor de fundo — sem costura, sem sobra de scroll
+ * vazio) já está ali. Scrollando pra cima roda ao contrário sozinho, porque
+ * é um scrub — some a seção, o círculo fecha e desce de volta pra baixo.
  */
 export function MaterialsSection({ activeProjectId }: MaterialsSectionProps) {
   const pinRef = useRef<HTMLDivElement>(null)
@@ -44,23 +44,32 @@ export function MaterialsSection({ activeProjectId }: MaterialsSectionProps) {
     const mm = gsap.matchMedia(pin)
     mm.add('(prefers-reduced-motion: no-preference)', () => {
       const diameter = Math.hypot(window.innerWidth, window.innerHeight)
-      gsap.set(circle, { width: 0, height: 0 })
+      const dotSize = 90
+      const riseFrom = window.innerHeight * 0.6
+      // xPercent/yPercent (não a classe CSS -translate-1/2) porque recalculam
+      // a cada frame com base no tamanho atual — width/height animam, então
+      // um translate percentual "congelado" pelo GSAP descentralizaria o
+      // círculo conforme ele cresce.
+      gsap.set(circle, { xPercent: -50, yPercent: -50, width: dotSize, height: dotSize, y: riseFrom })
 
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: pin,
           start: 'top top',
-          end: () => `+=${window.innerHeight * 1.3}`,
+          end: () => `+=${window.innerHeight * 1.7}`,
           pin: true,
           scrub: true,
           invalidateOnRefresh: true,
         },
       })
-      // cresce até cobrir a tela, depois segura preto sólido até soltar o pin
-      tl.to(circle, { width: diameter, height: diameter, ease: 'none', duration: 0.75 }).to(
-        {},
-        { duration: 0.25 },
-      )
+      // sobe até o centro, depois abre — termina exatamente quando cobre a
+      // tela, sem segurar scroll vazio antes de soltar o pin
+      tl.to(circle, { y: 0, ease: 'none', duration: 0.45 }).to(circle, {
+        width: diameter,
+        height: diameter,
+        ease: 'none',
+        duration: 0.55,
+      })
     })
     return () => mm.revert()
   }, [])
@@ -92,13 +101,13 @@ export function MaterialsSection({ activeProjectId }: MaterialsSectionProps) {
         <div
           ref={circleRef}
           aria-hidden
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-ink"
+          className="absolute top-1/2 left-1/2 rounded-full bg-ink"
         />
       </div>
 
       <div ref={contentRef} className="bg-ink text-paper">
         <div className="mx-auto w-full max-w-7xl px-6 py-28 sm:px-10 lg:py-36">
-          <SectionHeading eyebrow="Serviços" title="Como posso *ajudar*" tone="dark" />
+          <SectionHeading eyebrow="Serviços" title="Mais *criações*" tone="dark" />
 
           <nav
             className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-paper/10 pb-6 text-xs font-semibold tracking-[0.2em] uppercase sm:text-sm"
