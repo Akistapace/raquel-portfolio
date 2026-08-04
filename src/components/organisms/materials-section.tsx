@@ -1,96 +1,58 @@
-import { useLayoutEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
-import { ArrowUpRight, ChevronLeft, ChevronRight, X } from 'lucide-react'
-import type { Project } from '@/data/portfolio'
-import { lenis } from '@/hooks/use-lenis'
-import { Eyebrow } from '@/components/atoms/eyebrow'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react'
+import { projects } from '@/data/portfolio'
+import { SectionHeading } from '@/components/molecules/section-heading'
 import { PlaceholderMedia } from '@/components/atoms/placeholder-media'
 import { cn } from '@/lib/utils'
 
-type MediaGalleryModalProps = {
-  projects: Project[]
-  /** id do projeto pra abrir já filtrado; undefined = aba "Todos" */
-  initialProjectId?: string
-  onClose: () => void
+gsap.registerPlugin(ScrollTrigger)
+
+type MaterialsSectionProps = {
+  /** projeto pra abrir já filtrado — setado ao clicar num item de "O que eu crio" */
+  activeProjectId?: string
 }
 
 const ALL_TAB = 'todos'
 
-/** centro da tela — de onde o círculo nasce e pra onde encolhe */
-function screenCenter() {
-  return { x: window.innerWidth / 2, y: window.innerHeight / 2 }
-}
-
-/** raio (px) suficiente pro círculo cobrir a tela inteira a partir do centro */
-function coverRadius() {
-  const { x, y } = screenCenter()
-  return Math.hypot(x, y)
-}
-
 /**
- * Portal em tela cheia (mesma vibe escura do rodapé/Contato): abre com um
- * círculo que nasce no centro da tela e preenche tudo; fecha do mesmo jeito
- * ao contrário.
+ * Seção escura (mesma vibe do rodapé/Contato, logo em seguida): abre com um
+ * círculo que cresce junto com o scroll, revelando a galeria de materiais.
  */
-export function MediaGalleryModal({ projects, initialProjectId, onClose }: MediaGalleryModalProps) {
-  const panelRef = useRef<HTMLDivElement>(null)
-  const [tab, setTab] = useState(initialProjectId ?? ALL_TAB)
+export function MaterialsSection({ activeProjectId }: MaterialsSectionProps) {
+  const scope = useRef<HTMLDivElement>(null)
+  const [tab, setTab] = useState(activeProjectId ?? ALL_TAB)
   const [focused, setFocused] = useState<{ projectId: string; index: number } | null>(null)
-  const [closing, setClosing] = useState(false)
+  const [revealed, setRevealed] = useState(false)
+
+  useEffect(() => {
+    if (activeProjectId) setTab(activeProjectId)
+  }, [activeProjectId])
 
   useLayoutEffect(() => {
-    const prevOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    lenis?.stop()
-    return () => {
-      document.body.style.overflow = prevOverflow
-      lenis?.start()
-    }
-  }, [])
-
-  useLayoutEffect(() => {
-    const el = panelRef.current
+    const el = scope.current
     if (!el) return
-    const { x, y } = screenCenter()
-    const radius = coverRadius()
-    const from = `circle(0px at ${x}px ${y}px)`
-    const to = `circle(${radius}px at ${x}px ${y}px)`
-
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      gsap.set(el, { clipPath: to })
-      return
-    }
-    gsap.fromTo(el, { clipPath: from }, { clipPath: to, duration: 0.9, ease: 'power3.out' })
-  }, [])
-
-  const handleClose = () => {
-    const el = panelRef.current
-    if (closing) return
-    setClosing(true)
-    if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      onClose()
-      return
-    }
-    const { x, y } = screenCenter()
-    gsap.to(el, {
-      clipPath: `circle(0px at ${x}px ${y}px)`,
-      duration: 0.6,
-      ease: 'power3.in',
-      onComplete: onClose,
+    const mm = gsap.matchMedia(el)
+    mm.add('(prefers-reduced-motion: no-preference)', () => {
+      gsap.fromTo(
+        el,
+        { clipPath: 'circle(0% at 50% 50%)' },
+        {
+          clipPath: 'circle(150% at 50% 50%)',
+          ease: 'none',
+          scrollTrigger: { trigger: el, start: 'top 85%', end: 'top 20%', scrub: true },
+        },
+      )
     })
-  }
-
-  useLayoutEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return
-      if (focused) setFocused(null)
-      else handleClose()
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [focused])
+    ScrollTrigger.create({
+      trigger: el,
+      start: 'top 85%',
+      once: true,
+      onEnter: () => setRevealed(true),
+    })
+    return () => mm.revert()
+  }, [])
 
   const visibleProjects = tab === ALL_TAB ? projects : projects.filter((p) => p.id === tab)
   const focusedProject = focused ? projects.find((p) => p.id === focused.projectId) : undefined
@@ -102,32 +64,19 @@ export function MediaGalleryModal({ projects, initialProjectId, onClose }: Media
     setFocused({ projectId: focused.projectId, index: (focused.index + dir + len) % len })
   }
 
-  return createPortal(
-    <div ref={panelRef} className="fixed inset-0 z-80 flex flex-col overflow-y-auto bg-ink text-paper">
-      <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-6 pt-10 pb-16 sm:px-10">
-        <div className="flex items-start justify-between gap-6">
-          <Eyebrow tone="dark">Materiais</Eyebrow>
-          <button
-            type="button"
-            aria-label="Fechar"
-            onClick={handleClose}
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-paper transition-colors hover:bg-pink hover:text-ink"
-          >
-            <X className="h-5 w-5" strokeWidth={2.5} />
-          </button>
-        </div>
+  return (
+    <div ref={scope} className="bg-ink text-paper">
+      <div className="mx-auto w-full max-w-7xl px-6 py-28 sm:px-10 lg:py-36">
+        <SectionHeading eyebrow="Serviços" title="Como posso *ajudar*" tone="dark" />
 
         <nav
-          className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-paper/10 pb-6 text-xs font-semibold tracking-[0.2em] uppercase sm:text-sm"
+          className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-paper/10 pb-6 text-xs font-semibold tracking-[0.2em] uppercase sm:text-sm"
           aria-label="Filtrar por projeto"
         >
           <button
             type="button"
             onClick={() => setTab(ALL_TAB)}
-            className={cn(
-              'transition-colors',
-              tab === ALL_TAB ? 'text-pink' : 'text-paper/50 hover:text-paper',
-            )}
+            className={cn('transition-colors', tab === ALL_TAB ? 'text-pink' : 'text-paper/50 hover:text-paper')}
           >
             Todos
           </button>
@@ -146,8 +95,8 @@ export function MediaGalleryModal({ projects, initialProjectId, onClose }: Media
           ))}
         </nav>
 
-        {focusedProject && focusedMedia ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-6 py-10">
+        {!revealed ? null : focusedProject && focusedMedia ? (
+          <div className="flex flex-col items-center justify-center gap-6 py-10">
             <div className="relative flex aspect-video w-full max-w-4xl items-center justify-center overflow-hidden rounded-4xl border-2 border-paper/30 bg-paper/5">
               {focusedMedia.type === 'video' ? (
                 <video
@@ -238,7 +187,6 @@ export function MediaGalleryModal({ projects, initialProjectId, onClose }: Media
           </div>
         )}
       </div>
-    </div>,
-    document.body,
+    </div>
   )
 }

@@ -6,17 +6,18 @@ import { Navbar } from '@/components/organisms/navbar'
 import { Hero } from '@/components/organisms/hero'
 import { Manifesto } from '@/components/organisms/manifesto'
 import { WorksList } from '@/components/organisms/works-list'
-import { Services } from '@/components/organisms/services'
+import { MaterialsSection } from '@/components/organisms/materials-section'
 import { Contact } from '@/components/organisms/contact'
 import { useLenis } from '@/hooks/use-lenis'
 
 /**
  * One-page estilo sticker-collage: preloader → hero (collage com parallax de
  * mouse) → manifesto (scrub) → projetos (preview que segue o cursor) →
- * serviços (faixa vazada) → contato (cortina escura).
+ * materiais (círculo que abre com o scroll) → contato (cortina escura).
  */
 function App() {
   const [ready, setReady] = useState(false)
+  const [activeProjectId, setActiveProjectId] = useState<string | undefined>()
   useLenis()
 
   return (
@@ -33,10 +34,10 @@ function App() {
           <Manifesto />
         </section>
         <section id="projetos">
-          <WorksList />
+          <WorksList onSelectProject={setActiveProjectId} />
         </section>
         <section id="servicos">
-          <Services />
+          <MaterialsSection activeProjectId={activeProjectId} />
         </section>
         <section id="contato">
           <Contact />

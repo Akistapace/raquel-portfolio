@@ -6,23 +6,25 @@ import { SectionHeading } from '@/components/molecules/section-heading'
 import { Badge } from '@/components/atoms/badge'
 import { Button } from '@/components/atoms/button'
 import { CyclingMedia } from '@/components/organisms/works-list-media'
-import { MediaGalleryModal } from '@/components/organisms/media-gallery-modal'
 import { useWordReveal } from '@/hooks/use-word-reveal'
+import { lenis } from '@/hooks/use-lenis'
 
 gsap.registerPlugin(ScrollTrigger)
+
+type WorksListProps = {
+  /** chamado ao clicar num item — a seção de materiais abre já filtrada nele */
+  onSelectProject: (projectId?: string) => void
+}
 
 /**
  * Lista editorial de projetos (estilo Dogstudio): títulos gigantes em serifa;
  * no desktop, um preview flutuante segue o cursor sobre o item ativo.
  * No mobile, a mídia aparece inline em cada item.
  */
-export function WorksList() {
+export function WorksList({ onSelectProject }: WorksListProps) {
   const scope = useRef<HTMLDivElement>(null)
   const previewRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState<number | null>(null)
-  const [galleryModal, setGalleryModal] = useState<{ open: boolean; projectId?: string }>({
-    open: false,
-  })
   const hoveringRef = useRef(false)
   const scrollActiveRef = useRef<number | null>(null)
   const moveRef = useRef<{
@@ -32,8 +34,10 @@ export function WorksList() {
   } | null>(null)
   useWordReveal(scope)
 
-  const openGallery = (projectId?: string) => {
-    setGalleryModal({ open: true, projectId })
+  const selectAndScroll = (projectId?: string) => {
+    onSelectProject(projectId)
+    if (lenis) lenis.scrollTo('#servicos', { duration: 1.4 })
+    else document.querySelector('#servicos')?.scrollIntoView({ behavior: 'smooth' })
   }
 
   // move o preview até um ponto fixo, ancorado na linha ativa (modo scroll)
@@ -183,8 +187,8 @@ export function WorksList() {
   return (
     <div ref={scope} className="relative mx-auto w-full max-w-7xl px-6 py-28 sm:px-10 lg:py-36">
       <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-        <SectionHeading eyebrow="Projetos" title="O que eu *crio*" />
-        <Button variant="outline" size="sm" onClick={() => openGallery()} className="shrink-0">
+        <SectionHeading eyebrow="Serviços" title="O que eu *crio*" />
+        <Button variant="outline" size="sm" onClick={() => selectAndScroll()} className="shrink-0">
           Ver todos os materiais
         </Button>
       </div>
@@ -241,7 +245,7 @@ export function WorksList() {
                   className="group block w-full py-8 text-left"
                   onMouseEnter={() => onRowEnter(i)}
                   onMouseLeave={onRowLeave}
-                  onClick={() => openGallery(project.id)}
+                  onClick={() => selectAndScroll(project.id)}
                 >
                   {content}
                 </button>
@@ -283,14 +287,6 @@ export function WorksList() {
           </div>
         ))}
       </div>
-
-      {galleryModal.open && (
-        <MediaGalleryModal
-          projects={projects}
-          initialProjectId={galleryModal.projectId}
-          onClose={() => setGalleryModal((s) => ({ ...s, open: false }))}
-        />
-      )}
     </div>
   )
 }
