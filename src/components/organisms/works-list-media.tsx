@@ -39,19 +39,36 @@ export function CyclingMedia({
   const current = gallery[index]
   if (!current) return null
 
+  // pré-carrega o próximo item do ciclo (vídeo escondido, sem tocar) pra troca
+  // não esperar o buffer — sem baixar a galeria inteira de uma vez.
+  const next = gallery.length > 1 ? gallery[(index + 1) % gallery.length] : undefined
+  const preload =
+    next && next.src !== current.src && next.type === 'video' ? (
+      <video src={next.src} preload="auto" muted playsInline className="hidden" aria-hidden />
+    ) : null
+
   if (current.type === 'video') {
     return (
-      <video
-        key={current.src}
-        src={current.src}
-        muted
-        loop
-        autoPlay
-        playsInline
-        className={className ?? 'h-full w-full object-cover'}
-      />
+      <>
+        <video
+          key={current.src}
+          src={current.src}
+          muted
+          loop
+          autoPlay
+          playsInline
+          preload="auto"
+          className={className ?? 'h-full w-full object-cover'}
+        />
+        {preload}
+      </>
     )
   }
 
-  return <PlaceholderMedia src={current.src} alt={alt} hue={hue} label={label} className={className} />
+  return (
+    <>
+      <PlaceholderMedia src={current.src} alt={alt} hue={hue} label={label} className={className} />
+      {preload}
+    </>
+  )
 }

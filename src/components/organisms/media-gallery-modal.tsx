@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { X, ChevronLeft, ChevronRight } from 'lucide-react'
+import gsap from 'gsap'
+import { ArrowUpRight, ChevronLeft, ChevronRight, X } from 'lucide-react'
 import type { Project } from '@/data/portfolio'
 import { lenis } from '@/hooks/use-lenis'
+import { Eyebrow } from '@/components/atoms/eyebrow'
 import { PlaceholderMedia } from '@/components/atoms/placeholder-media'
 import { cn } from '@/lib/utils'
 
@@ -10,17 +12,32 @@ type MediaGalleryModalProps = {
   projects: Project[]
   /** id do projeto pra abrir já filtrado; undefined = aba "Todos" */
   initialProjectId?: string
+  /** ponto da tela onde o botão foi clicado — de onde o círculo nasce */
+  origin: { x: number; y: number }
   onClose: () => void
 }
 
 const ALL_TAB = 'todos'
 
-/** Modal full-screen com todas as mídias dos projetos: abas por projeto, grid e view focado. */
-export function MediaGalleryModal({ projects, initialProjectId, onClose }: MediaGalleryModalProps) {
+/** raio (px) suficiente pro círculo cobrir a tela inteira a partir do ponto de origem */
+function coverRadius(x: number, y: number) {
+  const w = window.innerWidth
+  const h = window.innerHeight
+  return Math.hypot(Math.max(x, w - x), Math.max(y, h - y))
+}
+
+/**
+ * Portal em tela cheia (mesma vibe escura do rodapé/Contato): abre com um
+ * círculo que nasce no botão clicado e preenche a tela; fecha do mesmo jeito
+ * ao contrário.
+ */
+export function MediaGalleryModal({ projects, initialProjectId, origin, onClose }: MediaGalleryModalProps) {
+  const panelRef = useRef<HTMLDivElement>(null)
   const [tab, setTab] = useState(initialProjectId ?? ALL_TAB)
   const [focused, setFocused] = useState<{ projectId: string; index: number } | null>(null)
+  const [closing, setClosing] = useState(false)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const prevOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     lenis?.stop()
@@ -30,15 +47,48 @@ export function MediaGalleryModal({ projects, initialProjectId, onClose }: Media
     }
   }, [])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    const el = panelRef.current
+    if (!el) return
+    const radius = coverRadius(origin.x, origin.y)
+    const from = `circle(0px at ${origin.x}px ${origin.y}px)`
+    const to = `circle(${radius}px at ${origin.x}px ${origin.y}px)`
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      gsap.set(el, { clipPath: to })
+      return
+    }
+    gsap.fromTo(el, { clipPath: from }, { clipPath: to, duration: 0.9, ease: 'power3.out' })
+  }, [origin.x, origin.y])
+
+  const handleClose = () => {
+    const el = panelRef.current
+    if (closing) return
+    setClosing(true)
+    if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      onClose()
+      return
+    }
+    const radius = coverRadius(origin.x, origin.y)
+    gsap.to(el, {
+      clipPath: `circle(0px at ${origin.x}px ${origin.y}px)`,
+      duration: 0.6,
+      ease: 'power3.in',
+      onComplete: onClose,
+    })
+    void radius
+  }
+
+  useLayoutEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return
       if (focused) setFocused(null)
-      else onClose()
+      else handleClose()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [focused, onClose])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focused])
 
   const visibleProjects = tab === ALL_TAB ? projects : projects.filter((p) => p.id === tab)
   const focusedProject = focused ? projects.find((p) => p.id === focused.projectId) : undefined
@@ -51,30 +101,30 @@ export function MediaGalleryModal({ projects, initialProjectId, onClose }: Media
   }
 
   return createPortal(
-    <div
-      className="fixed inset-0 z-80 flex items-center justify-center bg-ink/70 p-4 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <div
-        className="relative flex max-h-[85vh] w-full max-w-5xl flex-col overflow-hidden rounded-[2rem] border-2 border-ink bg-paper"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button
-          type="button"
-          aria-label="Fechar"
-          onClick={onClose}
-          className="absolute top-5 right-5 z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 border-ink bg-paper transition-colors hover:bg-pink"
-        >
-          <X className="h-5 w-5" strokeWidth={2.5} />
-        </button>
+    <div ref={panelRef} className="fixed inset-0 z-80 flex flex-col overflow-y-auto bg-ink text-paper">
+      <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-6 pt-10 pb-16 sm:px-10">
+        <div className="flex items-start justify-between gap-6">
+          <Eyebrow tone="dark">Materiais</Eyebrow>
+          <button
+            type="button"
+            aria-label="Fechar"
+            onClick={handleClose}
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-paper transition-colors hover:bg-pink hover:text-ink"
+          >
+            <X className="h-5 w-5" strokeWidth={2.5} />
+          </button>
+        </div>
 
-        <div className="flex gap-2 overflow-x-auto border-b border-ink/10 px-6 pt-6 pb-4 sm:px-8">
+        <nav
+          className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-paper/10 pb-6 text-xs font-semibold tracking-[0.2em] uppercase sm:text-sm"
+          aria-label="Filtrar por projeto"
+        >
           <button
             type="button"
             onClick={() => setTab(ALL_TAB)}
             className={cn(
-              'shrink-0 rounded-full border-2 border-ink px-4 py-1.5 text-xs font-semibold tracking-wide uppercase transition-colors',
-              tab === ALL_TAB ? 'bg-ink text-paper' : 'text-ink hover:bg-pink-soft',
+              'transition-colors',
+              tab === ALL_TAB ? 'text-pink' : 'text-paper/50 hover:text-paper',
             )}
           >
             Todos
@@ -85,18 +135,18 @@ export function MediaGalleryModal({ projects, initialProjectId, onClose }: Media
               type="button"
               onClick={() => setTab(project.id)}
               className={cn(
-                'shrink-0 rounded-full border-2 border-ink px-4 py-1.5 text-xs font-semibold tracking-wide uppercase transition-colors',
-                tab === project.id ? 'bg-ink text-paper' : 'text-ink hover:bg-pink-soft',
+                'transition-colors',
+                tab === project.id ? 'text-pink' : 'text-paper/50 hover:text-paper',
               )}
             >
               {project.title}
             </button>
           ))}
-        </div>
+        </nav>
 
         {focusedProject && focusedMedia ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-4 overflow-y-auto p-6 sm:p-8">
-            <div className="relative flex aspect-video w-full max-w-3xl items-center justify-center overflow-hidden rounded-2xl border-2 border-ink bg-ink/5">
+          <div className="flex flex-1 flex-col items-center justify-center gap-6 py-10">
+            <div className="relative flex aspect-video w-full max-w-4xl items-center justify-center overflow-hidden rounded-4xl border-2 border-paper/30 bg-paper/5">
               {focusedMedia.type === 'video' ? (
                 <video
                   key={focusedMedia.src}
@@ -122,7 +172,7 @@ export function MediaGalleryModal({ projects, initialProjectId, onClose }: Media
                     type="button"
                     aria-label="Anterior"
                     onClick={() => moveFocused(-1)}
-                    className="absolute left-3 flex h-10 w-10 items-center justify-center rounded-full border-2 border-ink bg-paper hover:bg-pink-soft"
+                    className="absolute left-4 flex h-12 w-12 items-center justify-center rounded-full border-2 border-paper bg-ink/60 hover:bg-pink hover:text-ink"
                   >
                     <ChevronLeft className="h-5 w-5" strokeWidth={2.5} />
                   </button>
@@ -130,7 +180,7 @@ export function MediaGalleryModal({ projects, initialProjectId, onClose }: Media
                     type="button"
                     aria-label="Próximo"
                     onClick={() => moveFocused(1)}
-                    className="absolute right-3 flex h-10 w-10 items-center justify-center rounded-full border-2 border-ink bg-paper hover:bg-pink-soft"
+                    className="absolute right-4 flex h-12 w-12 items-center justify-center rounded-full border-2 border-paper bg-ink/60 hover:bg-pink hover:text-ink"
                   >
                     <ChevronRight className="h-5 w-5" strokeWidth={2.5} />
                   </button>
@@ -140,25 +190,25 @@ export function MediaGalleryModal({ projects, initialProjectId, onClose }: Media
             <button
               type="button"
               onClick={() => setFocused(null)}
-              className="text-xs font-semibold tracking-[0.2em] text-smoke uppercase hover:text-pink"
+              className="text-xs font-semibold tracking-[0.2em] text-paper/60 uppercase transition-colors hover:text-pink-soft"
             >
               ← voltar pra grade
             </button>
           </div>
         ) : (
-          <div className="flex-1 space-y-8 overflow-y-auto p-6 sm:p-8">
+          <div className="mt-10 space-y-16">
             {visibleProjects.map((project) => (
               <div key={project.id}>
-                <h3 className="font-display text-lg font-bold tracking-tight text-ink uppercase">
+                <h3 className="font-display text-3xl font-bold tracking-tight uppercase sm:text-4xl">
                   {project.title}
                 </h3>
-                <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {project.gallery.map((media, i) => (
                     <button
                       key={media.src}
                       type="button"
                       onClick={() => setFocused({ projectId: project.id, index: i })}
-                      className="aspect-video overflow-hidden rounded-xl border border-ink/10 transition-opacity hover:opacity-80"
+                      className="group relative aspect-video overflow-hidden rounded-2xl border-2 border-paper/15 transition-colors hover:border-pink"
                     >
                       {media.type === 'video' ? (
                         <video
@@ -172,6 +222,12 @@ export function MediaGalleryModal({ projects, initialProjectId, onClose }: Media
                       ) : (
                         <PlaceholderMedia src={media.src} alt={project.title} hue={project.hue} label={project.title} />
                       )}
+                      <span
+                        aria-hidden
+                        className="absolute inset-0 flex items-center justify-center bg-ink/0 opacity-0 transition-all duration-300 group-hover:bg-ink/30 group-hover:opacity-100"
+                      >
+                        <ArrowUpRight className="h-8 w-8 text-paper" strokeWidth={2.5} />
+                      </span>
                     </button>
                   ))}
                 </div>

@@ -21,9 +21,11 @@ export function WorksList() {
   const scope = useRef<HTMLDivElement>(null)
   const previewRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState<number | null>(null)
-  const [galleryModal, setGalleryModal] = useState<{ open: boolean; projectId?: string }>({
-    open: false,
-  })
+  const [galleryModal, setGalleryModal] = useState<{
+    open: boolean
+    projectId?: string
+    origin: { x: number; y: number }
+  }>({ open: false, origin: { x: 0, y: 0 } })
   const hoveringRef = useRef(false)
   const scrollActiveRef = useRef<number | null>(null)
   const moveRef = useRef<{
@@ -33,10 +35,10 @@ export function WorksList() {
   } | null>(null)
   useWordReveal(scope)
 
-  const openGallery = (e: ReactMouseEvent, projectId: string) => {
+  const openGallery = (e: ReactMouseEvent, projectId?: string) => {
     e.preventDefault()
     e.stopPropagation()
-    setGalleryModal({ open: true, projectId })
+    setGalleryModal({ open: true, projectId, origin: { x: e.clientX, y: e.clientY } })
   }
 
   // move o preview até um ponto fixo, ancorado na linha ativa (modo scroll)
@@ -185,15 +187,19 @@ export function WorksList() {
 
   return (
     <div ref={scope} className="relative mx-auto w-full max-w-7xl px-6 py-28 sm:px-10 lg:py-36">
-      <SectionHeading eyebrow="Projetos" title="O que eu *crio*" />
-
-      <div className="mt-8 flex justify-start sm:justify-end">
-        <Button variant="outline" size="sm" onClick={() => setGalleryModal({ open: true })}>
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+        <SectionHeading eyebrow="Projetos" title="O que eu *crio*" />
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={(e) => openGallery(e, undefined)}
+          className="shrink-0"
+        >
           Ver todos os materiais
         </Button>
       </div>
 
-      <ul className="work-rows mt-10 border-t border-ink/10">
+      <ul className="work-rows mt-16 border-t border-ink/10">
         {projects.map((project, i) => (
           <li key={project.id} className="work-row border-b border-ink/10">
             <a
@@ -275,7 +281,8 @@ export function WorksList() {
         <MediaGalleryModal
           projects={projects}
           initialProjectId={galleryModal.projectId}
-          onClose={() => setGalleryModal({ open: false })}
+          origin={galleryModal.origin}
+          onClose={() => setGalleryModal((s) => ({ ...s, open: false }))}
         />
       )}
     </div>

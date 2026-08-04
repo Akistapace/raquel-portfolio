@@ -4,6 +4,9 @@
  * Se o arquivo não existir, os componentes mostram um placeholder elegante.
  */
 
+/** Resolve um path de `public/` contra o base do Vite (`/raquel-portfolio/` no GitHub Pages). */
+const asset = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, '')}`
+
 export const profile = {
   name: 'Raquel Aquistapace',
   role: 'Social Media',
@@ -19,7 +22,7 @@ export const profile = {
   ],
   experience:
     'Do recrutamento ao ensino, passando por psicologia, doceria, viagens e beleza, já criei conteúdo para realidades bem diferentes. Como social media, produzo para Instagram, Facebook, YouTube e TikTok: edição de vídeo e foto, legendas, narração, ebooks, curso online, identidade visual, CTAs e roteiros para lives. E quando o cliente quer aprender a fazer sozinho, eu ensino: plataformas, aplicativos e imagem visual.',
-  portrait: '/assets/raquel-no-bg.png',
+  portrait: asset('/assets/raquel-no-bg.png'),
   phone: '+55 (51) 98045-1745',
   whatsapp: 'https://wa.me/5551980451745',
   instagram: '@raquelruffinomkt',
@@ -66,13 +69,13 @@ export const projects: Project[] = [
     category: 'Vídeo curto',
     year: 'IG · TT',
     description: 'Do roteiro à transição: vídeos curtos que prendem nos primeiros segundos.',
-    image: '/assets/trabalho-reels.png',
-    video: '/assets/reels-2.mp4',
+    image: asset('/assets/trabalho-reels.png'),
+    video: asset('/assets/reels-2.mp4'),
     hue: '#F2B9DA',
     platforms: ['Instagram', 'TikTok'],
     gallery: [
-      { type: 'video', src: '/assets/reels-2.mp4' },
-      { type: 'video', src: '/assets/video-reels.mp4' },
+      { type: 'video', src: asset('/assets/reels-2.mp4') },
+      { type: 'video', src: asset('/assets/video-reels.mp4') },
     ],
   },
   {
@@ -81,22 +84,22 @@ export const projects: Project[] = [
     category: 'Design',
     year: 'IG · LI',
     description: 'Capas, títulos e legendas pensados para o público salvar e compartilhar.',
-    image: '/assets/trabalho-carrossel.png',
-    video: '/assets/carrossel-1.mp4',
+    image: asset('/assets/trabalho-carrossel.png'),
+    video: asset('/assets/carrossel-1.mp4'),
     hue: '#CDBFEA',
     platforms: ['Instagram', 'LinkedIn'],
     gallery: [
-      { type: 'video', src: '/assets/carrossel-1.mp4' },
-      { type: 'video', src: '/assets/carrossel-2.mp4' },
-      { type: 'video', src: '/assets/carrossel-3.mp4' },
-      { type: 'video', src: '/assets/carrossel-4.mp4' },
-      { type: 'video', src: '/assets/carrossel-5.mp4' },
-      { type: 'video', src: '/assets/carrossel-6.mp4' },
-      { type: 'video', src: '/assets/carrossel-7.mp4' },
-      { type: 'video', src: '/assets/carrossel-8.mp4' },
-      { type: 'image', src: '/assets/carrossel-post-1.jpeg' },
-      { type: 'image', src: '/assets/carrossel-post-2.jpeg' },
-      { type: 'image', src: '/assets/carrossel-post-3.jpeg' },
+      { type: 'video', src: asset('/assets/carrossel-1.mp4') },
+      { type: 'video', src: asset('/assets/carrossel-2.mp4') },
+      { type: 'video', src: asset('/assets/carrossel-3.mp4') },
+      { type: 'video', src: asset('/assets/carrossel-4.mp4') },
+      { type: 'video', src: asset('/assets/carrossel-5.mp4') },
+      { type: 'video', src: asset('/assets/carrossel-6.mp4') },
+      { type: 'video', src: asset('/assets/carrossel-7.mp4') },
+      { type: 'video', src: asset('/assets/carrossel-8.mp4') },
+      { type: 'image', src: asset('/assets/carrossel-post-1.jpeg') },
+      { type: 'image', src: asset('/assets/carrossel-post-2.jpeg') },
+      { type: 'image', src: asset('/assets/carrossel-post-3.jpeg') },
     ],
   },
   {
@@ -105,13 +108,13 @@ export const projects: Project[] = [
     category: 'YouTube',
     year: 'YT',
     description: 'Roteiro, presença de câmera e edição completa para vídeos longos.',
-    image: '/assets/trabalho-youtube.png',
-    video: '/assets/youtube-2.mp4',
+    image: asset('/assets/trabalho-youtube.png'),
+    video: asset('/assets/youtube-2.mp4'),
     hue: '#F6CFE5',
     platforms: ['YouTube'],
     gallery: [
-      { type: 'video', src: '/assets/youtube-2.mp4' },
-      { type: 'image', src: '/assets/trabalho-youtube.png' },
+      { type: 'video', src: asset('/assets/youtube-2.mp4') },
+      { type: 'image', src: asset('/assets/trabalho-youtube.png') },
     ],
   },
   {
@@ -120,9 +123,9 @@ export const projects: Project[] = [
     category: 'Foto & edição',
     year: 'Estúdio',
     description: 'Produção e edição de fotos com olhar de moda e beleza.',
-    image: '/assets/trabalho-foto.png',
+    image: asset('/assets/trabalho-foto.png'),
     hue: '#DDD4F0',
-    gallery: [{ type: 'image', src: '/assets/trabalho-foto.png' }],
+    gallery: [{ type: 'image', src: asset('/assets/trabalho-foto.png') }],
   },
   {
     id: 'produtos-digitais',
@@ -130,9 +133,9 @@ export const projects: Project[] = [
     category: 'Ebook & curso',
     year: 'Digital',
     description: 'Ebook, curso online e link na bio, da estrutura ao design final.',
-    image: '/assets/trabalho-digital.jpg',
+    image: asset('/assets/trabalho-digital.jpg'),
     hue: '#EFA5CC',
-    gallery: [{ type: 'image', src: '/assets/trabalho-digital.jpg' }],
+    gallery: [{ type: 'image', src: asset('/assets/trabalho-digital.jpg') }],
   },
 ]
 
