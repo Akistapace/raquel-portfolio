@@ -19,15 +19,17 @@ const ALL_TAB = 'todos'
 /**
  * Transição presa no scroll (pin, uma tela de altura), em 2 passos: 1) um
  * ponto preto sobe de baixo da tela até parar no centro; 2) só aí ele abre
- * (cresce) até cobrir tudo. No instante em que cobre 100%, o pin solta e a
- * seção de materiais (mesma cor de fundo — sem costura, sem sobra de scroll
- * vazio) já está ali. Scrollando pra cima roda ao contrário sozinho, porque
- * é um scrub — some a seção, o círculo fecha e desce de volta pra baixo.
+ * (cresce) até cobrir tudo, enquanto a própria seção de materiais (presa a
+ * uma tela de altura, cortada) ganha scale junto — os dois terminam 100%
+ * juntos, e só nesse instante o pin solta o scroll (a seção volta a ter
+ * altura normal, rolável). Scrollando pra cima roda ao contrário sozinho,
+ * porque é um scrub.
  */
 export function MaterialsSection({ activeProjectId }: MaterialsSectionProps) {
   const pinRef = useRef<HTMLDivElement>(null)
   const circleRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
+  const contentInnerRef = useRef<HTMLDivElement>(null)
   const [tab, setTab] = useState(activeProjectId ?? ALL_TAB)
   const [focused, setFocused] = useState<{ projectId: string; index: number } | null>(null)
   const [revealed, setRevealed] = useState(false)
@@ -40,7 +42,8 @@ export function MaterialsSection({ activeProjectId }: MaterialsSectionProps) {
     const pin = pinRef.current
     const circle = circleRef.current
     const content = contentRef.current
-    if (!pin || !circle || !content) return
+    const inner = contentInnerRef.current
+    if (!pin || !circle || !content || !inner) return
 
     const mm = gsap.matchMedia(pin)
     mm.add('(prefers-reduced-motion: no-preference)', () => {
@@ -52,12 +55,11 @@ export function MaterialsSection({ activeProjectId }: MaterialsSectionProps) {
       // um translate percentual "congelado" pelo GSAP descentralizaria o
       // círculo conforme ele cresce.
       gsap.set(circle, { xPercent: -50, yPercent: -50, width: dotSize, height: dotSize, y: riseFrom })
-      // a margem negativa no conteúdo (ver JSX) já deixa o topo dele
-      // exatamente no ponto onde o pin solta — mas isso também o coloca
-      // dentro do alcance de scroll ANTES disso, então ele ficaria
-      // "espiando" nos vãos do círculo enquanto ele ainda tá crescendo.
-      // Fica invisível até o pin soltar de verdade (onLeave/onEnterBack).
-      gsap.set(content, { autoAlpha: 0 })
+      // enquanto presa (h-svh + overflow-hidden), a seção só mostra o topo
+      // (título/abas) numa tela só, crescendo em scale a partir daí — evita
+      // qualquer pedaço do conteúdo (que é bem mais alto que uma tela)
+      // aparecer fora do círculo antes da hora.
+      gsap.set(inner, { scale: 0.001, transformOrigin: 'top center' })
 
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -67,18 +69,15 @@ export function MaterialsSection({ activeProjectId }: MaterialsSectionProps) {
           pin: true,
           scrub: true,
           invalidateOnRefresh: true,
-          onLeave: () => gsap.set(content, { autoAlpha: 1 }),
-          onEnterBack: () => gsap.set(content, { autoAlpha: 0 }),
+          onLeave: () => gsap.set(content, { height: 'auto', overflow: 'visible' }),
+          onEnterBack: () => gsap.set(content, { height: '100svh', overflow: 'hidden' }),
         },
       })
-      // sobe até o centro, depois abre — termina exatamente quando cobre a
-      // tela, sem segurar scroll vazio antes de soltar o pin
-      tl.to(circle, { y: 0, ease: 'none', duration: 0.45 }).to(circle, {
-        width: diameter,
-        height: diameter,
-        ease: 'none',
-        duration: 0.55,
-      })
+      // sobe até o centro, depois abre — e a seção ganha scale junto, os
+      // dois terminando 100% exatamente quando o pin solta
+      tl.to(circle, { y: 0, ease: 'none', duration: 0.45 })
+        .to(circle, { width: diameter, height: diameter, ease: 'none', duration: 0.55 })
+        .to(inner, { scale: 1, ease: 'none', duration: 0.55 }, '<')
     })
     return () => mm.revert()
   }, [])
@@ -116,9 +115,11 @@ export function MaterialsSection({ activeProjectId }: MaterialsSectionProps) {
 
       {/* -mt cancela a altura própria da caixa do pin (h-svh, que sobra parada
           e preta depois que solta) — o conteúdo passa a começar exatamente
-          onde o pin solta, sem esse andar extra vazio no meio. */}
-      <div ref={contentRef} className="-mt-[100svh] bg-ink text-paper">
-        <div className="mx-auto w-full max-w-7xl px-6 py-28 sm:px-10 lg:py-36">
+          onde o pin solta, sem esse andar extra vazio no meio. h-svh +
+          overflow-hidden aqui também (removidos assim que o pin solta, via
+          onLeave) pra conter o scale do miolo numa tela só. */}
+      <div ref={contentRef} className="-mt-[100svh] h-svh overflow-hidden bg-ink text-paper">
+        <div ref={contentInnerRef} className="mx-auto w-full max-w-7xl px-6 py-28 sm:px-10 lg:py-36">
           <SectionHeading eyebrow="Serviços" title="Mais *criações*" tone="dark" />
 
           <nav
