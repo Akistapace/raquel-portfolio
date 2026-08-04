@@ -45,7 +45,7 @@ export function MaterialsSection({ activeProjectId }: MaterialsSectionProps) {
     mm.add('(prefers-reduced-motion: no-preference)', () => {
       const diameter = Math.hypot(window.innerWidth, window.innerHeight)
       const dotSize = 90
-      const riseFrom = window.innerHeight * 0.6
+      const riseFrom = window.innerHeight * 0.35
       // xPercent/yPercent (não a classe CSS -translate-1/2) porque recalculam
       // a cada frame com base no tamanho atual — width/height animam, então
       // um translate percentual "congelado" pelo GSAP descentralizaria o
@@ -56,7 +56,7 @@ export function MaterialsSection({ activeProjectId }: MaterialsSectionProps) {
         scrollTrigger: {
           trigger: pin,
           start: 'top top',
-          end: () => `+=${window.innerHeight * 1.7}`,
+          end: () => `+=${window.innerHeight * 1.3}`,
           pin: true,
           scrub: true,
           invalidateOnRefresh: true,
