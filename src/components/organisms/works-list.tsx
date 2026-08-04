@@ -1,10 +1,13 @@
 import { useLayoutEffect, useRef, useState } from 'react'
+import type { MouseEvent as ReactMouseEvent } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { projects } from '@/data/portfolio'
 import { SectionHeading } from '@/components/molecules/section-heading'
-import { PlaceholderMedia } from '@/components/atoms/placeholder-media'
 import { Badge } from '@/components/atoms/badge'
+import { Button } from '@/components/atoms/button'
+import { CyclingMedia } from '@/components/organisms/works-list-media'
+import { MediaGalleryModal } from '@/components/organisms/media-gallery-modal'
 import { useWordReveal } from '@/hooks/use-word-reveal'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -18,6 +21,9 @@ export function WorksList() {
   const scope = useRef<HTMLDivElement>(null)
   const previewRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState<number | null>(null)
+  const [galleryModal, setGalleryModal] = useState<{ open: boolean; projectId?: string }>({
+    open: false,
+  })
   const hoveringRef = useRef(false)
   const scrollActiveRef = useRef<number | null>(null)
   const moveRef = useRef<{
@@ -26,6 +32,12 @@ export function WorksList() {
     rTo: (v: number) => void
   } | null>(null)
   useWordReveal(scope)
+
+  const openGallery = (e: ReactMouseEvent, projectId: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setGalleryModal({ open: true, projectId })
+  }
 
   // move o preview até um ponto fixo, ancorado na linha ativa (modo scroll)
   const anchorPreviewTo = (i: number) => {
@@ -175,7 +187,13 @@ export function WorksList() {
     <div ref={scope} className="relative mx-auto w-full max-w-7xl px-6 py-28 sm:px-10 lg:py-36">
       <SectionHeading eyebrow="Projetos" title="O que eu *crio*" />
 
-      <ul className="work-rows mt-16 border-t border-ink/10">
+      <div className="mt-8 flex justify-start sm:justify-end">
+        <Button variant="outline" size="sm" onClick={() => setGalleryModal({ open: true })}>
+          Ver todos os materiais
+        </Button>
+      </div>
+
+      <ul className="work-rows mt-10 border-t border-ink/10">
         {projects.map((project, i) => (
           <li key={project.id} className="work-row border-b border-ink/10">
             <a
@@ -194,31 +212,35 @@ export function WorksList() {
                 >
                   {project.title}
                 </h3>
-                <div className="flex shrink-0 items-center gap-4 text-sm text-smoke">
+                <div className="flex shrink-0 flex-wrap items-center gap-2 text-sm text-smoke sm:gap-4">
                   <span>{project.year}</span>
                   <Badge fill={i % 2 === 0 ? 'pink' : 'lavender'}>{project.category}</Badge>
+                  {project.platforms?.map((platform) => (
+                    <Badge key={platform} fill={i % 2 === 0 ? 'lavender' : 'pink'}>
+                      {platform}
+                    </Badge>
+                  ))}
                 </div>
               </div>
               <p className="mt-2 max-w-xl text-sm text-smoke">{project.description}</p>
+              {project.gallery.length > 1 && (
+                <button
+                  type="button"
+                  onClick={(e) => openGallery(e, project.id)}
+                  className="mt-3 inline-flex items-center text-xs font-semibold tracking-[0.2em] text-smoke uppercase transition-colors hover:text-pink"
+                >
+                  Ver materiais ({project.gallery.length})
+                </button>
+              )}
               {/* mídia inline — só em telas sem cursor fino */}
               <div className="mt-5 aspect-video overflow-hidden rounded-2xl border-2 border-ink lg:hidden">
-                {project.video ? (
-                  <video
-                    src={project.video}
-                    muted
-                    loop
-                    autoPlay
-                    playsInline
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <PlaceholderMedia
-                    src={project.image}
-                    alt={`${project.title} (${project.category})`}
-                    hue={project.hue}
-                    label={project.title}
-                  />
-                )}
+                <CyclingMedia
+                  gallery={project.gallery}
+                  active
+                  alt={`${project.title} (${project.category})`}
+                  hue={project.hue}
+                  label={project.title}
+                />
               </div>
             </a>
           </li>
@@ -236,21 +258,26 @@ export function WorksList() {
             key={project.id}
             className={`absolute inset-0 transition-opacity duration-300 ${active === i ? 'opacity-100' : 'opacity-0'}`}
           >
-            {project.video ? (
-              <video
-                src={project.video}
-                muted
-                loop
-                autoPlay
-                playsInline
-                className="h-full w-full object-cover"
+            {active === i && (
+              <CyclingMedia
+                gallery={project.gallery}
+                active
+                alt={`${project.title} (${project.category})`}
+                hue={project.hue}
+                label={project.title}
               />
-            ) : (
-              <PlaceholderMedia src={project.image} alt="" hue={project.hue} label={project.title} />
             )}
           </div>
         ))}
       </div>
+
+      {galleryModal.open && (
+        <MediaGalleryModal
+          projects={projects}
+          initialProjectId={galleryModal.projectId}
+          onClose={() => setGalleryModal({ open: false })}
+        />
+      )}
     </div>
   )
 }

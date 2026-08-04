@@ -40,6 +40,8 @@ export const profile = {
   ],
 }
 
+export type ProjectMedia = { type: 'video' | 'image'; src: string }
+
 export type Project = {
   id: string
   title: string
@@ -50,6 +52,10 @@ export type Project = {
   /** vídeo curto (mp4) — toca no preview flutuante em vez da imagem */
   video?: string
   hue: string // cor pastel do placeholder enquanto não há asset
+  /** todas as mídias do projeto; índice 0 é sempre igual a `video ?? image` */
+  gallery: ProjectMedia[]
+  /** plataformas onde esse tipo de conteúdo roda — vira badge extra na lista */
+  platforms?: string[]
 }
 
 /** Tipos de conteúdo que produzo — viram a lista grande de "trabalhos". */
@@ -61,17 +67,37 @@ export const projects: Project[] = [
     year: 'IG · TT',
     description: 'Do roteiro à transição: vídeos curtos que prendem nos primeiros segundos.',
     image: '/assets/trabalho-reels.png',
-    video: '/assets/video-reels.mp4',
+    video: '/assets/reels-2.mp4',
     hue: '#F2B9DA',
+    platforms: ['Instagram', 'TikTok'],
+    gallery: [
+      { type: 'video', src: '/assets/reels-2.mp4' },
+      { type: 'video', src: '/assets/video-reels.mp4' },
+    ],
   },
   {
     id: 'carrosseis',
     title: 'Carrosséis',
     category: 'Design',
-    year: 'IG',
+    year: 'IG · LI',
     description: 'Capas, títulos e legendas pensados para o público salvar e compartilhar.',
     image: '/assets/trabalho-carrossel.png',
+    video: '/assets/carrossel-1.mp4',
     hue: '#CDBFEA',
+    platforms: ['Instagram', 'LinkedIn'],
+    gallery: [
+      { type: 'video', src: '/assets/carrossel-1.mp4' },
+      { type: 'video', src: '/assets/carrossel-2.mp4' },
+      { type: 'video', src: '/assets/carrossel-3.mp4' },
+      { type: 'video', src: '/assets/carrossel-4.mp4' },
+      { type: 'video', src: '/assets/carrossel-5.mp4' },
+      { type: 'video', src: '/assets/carrossel-6.mp4' },
+      { type: 'video', src: '/assets/carrossel-7.mp4' },
+      { type: 'video', src: '/assets/carrossel-8.mp4' },
+      { type: 'image', src: '/assets/carrossel-post-1.jpeg' },
+      { type: 'image', src: '/assets/carrossel-post-2.jpeg' },
+      { type: 'image', src: '/assets/carrossel-post-3.jpeg' },
+    ],
   },
   {
     id: 'youtube',
@@ -80,7 +106,13 @@ export const projects: Project[] = [
     year: 'YT',
     description: 'Roteiro, presença de câmera e edição completa para vídeos longos.',
     image: '/assets/trabalho-youtube.png',
+    video: '/assets/youtube-2.mp4',
     hue: '#F6CFE5',
+    platforms: ['YouTube'],
+    gallery: [
+      { type: 'video', src: '/assets/youtube-2.mp4' },
+      { type: 'image', src: '/assets/trabalho-youtube.png' },
+    ],
   },
   {
     id: 'fotografia',
@@ -90,6 +122,7 @@ export const projects: Project[] = [
     description: 'Produção e edição de fotos com olhar de moda e beleza.',
     image: '/assets/trabalho-foto.png',
     hue: '#DDD4F0',
+    gallery: [{ type: 'image', src: '/assets/trabalho-foto.png' }],
   },
   {
     id: 'produtos-digitais',
@@ -99,6 +132,7 @@ export const projects: Project[] = [
     description: 'Ebook, curso online e link na bio, da estrutura ao design final.',
     image: '/assets/trabalho-digital.jpg',
     hue: '#EFA5CC',
+    gallery: [{ type: 'image', src: '/assets/trabalho-digital.jpg' }],
   },
 ]
 
