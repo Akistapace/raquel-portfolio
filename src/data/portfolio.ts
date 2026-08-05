@@ -23,7 +23,7 @@ export const profile = {
   experience:
     'Do recrutamento ao ensino, passando por psicologia, doceria, viagens e beleza, já criei conteúdo para realidades bem diferentes. Como social media, produzo para Instagram, Facebook, YouTube e TikTok: edição de vídeo e foto, legendas, narração, ebooks, curso online, identidade visual, CTAs e roteiros para lives. E quando o cliente quer aprender a fazer sozinho, eu ensino: plataformas, aplicativos e imagem visual.',
   portrait: asset('/assets/raquel-no-bg.png'),
-  phone: '+55 51 9880451732',
+  phone: '+55 51 980451732',
   whatsapp: 'https://wa.me/55519880451732',
   instagram: '@raquelruffinomkt',
   socials: [
