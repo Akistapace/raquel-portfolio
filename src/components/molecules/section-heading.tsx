@@ -7,12 +7,10 @@ type SectionHeadingProps = {
   title: string
   /** light = sobre fundo claro (padrão); dark = sobre painel escuro */
   tone?: 'light' | 'dark'
-  /** pinta o título como texto selecionado (mesmo estilo do ::selection) */
-  selected?: boolean
   className?: string
 }
 
-export function SectionHeading({ eyebrow, title, tone = 'light', selected, className }: SectionHeadingProps) {
+export function SectionHeading({ eyebrow, title, tone = 'light', className }: SectionHeadingProps) {
   return (
     <header className={cn('space-y-6', className)}>
       <Eyebrow tone={tone}>{eyebrow}</Eyebrow>
@@ -22,7 +20,7 @@ export function SectionHeading({ eyebrow, title, tone = 'light', selected, class
           tone === 'light' ? 'text-ink' : 'text-paper',
         )}
       >
-        <SplitWords text={title} wordClassName={selected ? 'bg-pink text-paper' : undefined} />
+        <SplitWords text={title} />
       </h2>
     </header>
   )

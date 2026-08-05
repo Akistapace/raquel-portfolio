@@ -69,7 +69,7 @@ export function Manifesto() {
       <Marquee items={profile.skills} />
       <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-14 px-6 pt-24 pb-14 sm:px-10 lg:grid-cols-[1.5fr_1fr]">
         <div className="space-y-10">
-          <SectionHeading eyebrow="Sobre mim" title="Hello!! Sou a Raquel" selected />
+          <SectionHeading eyebrow="Sobre mim" title="Hello!! Sou a Raquel" />
           <p
             aria-label={profile.about}
             className="scrub-block font-display text-2xl leading-snug font-medium text-ink sm:text-3xl lg:text-4xl"
