@@ -1,10 +1,12 @@
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowUpRight, ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { projects } from '@/data/portfolio'
 import { SectionHeading } from '@/components/molecules/section-heading'
 import { PlaceholderMedia } from '@/components/atoms/placeholder-media'
+import { lenis } from '@/hooks/use-lenis'
 import { cn } from '@/lib/utils'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -87,6 +89,25 @@ export function MaterialsSection() {
     })
   }, [])
 
+  // item aberto vira um modal de verdade (portal + trava scroll) — trocar o
+  // conteúdo do grid pelo viewer *dentro* da seção mudava a altura da página
+  // no meio do scroll e jogava a viewport pro rodapé.
+  useEffect(() => {
+    if (!focused) return
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    lenis?.stop()
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setFocused(null)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = prevOverflow
+      lenis?.start()
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [focused])
+
   const visibleProjects = tab === ALL_TAB ? projects : projects.filter((p) => p.id === tab)
   const focusedProject = focused ? projects.find((p) => p.id === focused.projectId) : undefined
   const focusedMedia = focusedProject && focused ? focusedProject.gallery[focused.index] : undefined
@@ -142,58 +163,7 @@ export function MaterialsSection() {
             ))}
           </nav>
 
-          {!revealed ? null : focusedProject && focusedMedia ? (
-            <div className="flex flex-col items-center justify-center gap-6 py-10">
-              <div className="relative flex aspect-video w-full max-w-4xl items-center justify-center overflow-hidden rounded-4xl border-2 border-paper/30 bg-paper/5">
-                {focusedMedia.type === 'video' ? (
-                  <video
-                    key={focusedMedia.src}
-                    src={focusedMedia.src}
-                    controls
-                    autoPlay
-                    loop
-                    playsInline
-                    className="h-full w-full object-contain"
-                  />
-                ) : (
-                  <PlaceholderMedia
-                    src={focusedMedia.src}
-                    alt={focusedProject.title}
-                    hue={focusedProject.hue}
-                    label={focusedProject.title}
-                    className="object-contain"
-                  />
-                )}
-                {focusedProject.gallery.length > 1 && (
-                  <>
-                    <button
-                      type="button"
-                      aria-label="Anterior"
-                      onClick={() => moveFocused(-1)}
-                      className="absolute left-4 flex h-12 w-12 items-center justify-center rounded-full border-2 border-paper bg-ink/60 hover:bg-pink hover:text-ink"
-                    >
-                      <ChevronLeft className="h-5 w-5" strokeWidth={2.5} />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Próximo"
-                      onClick={() => moveFocused(1)}
-                      className="absolute right-4 flex h-12 w-12 items-center justify-center rounded-full border-2 border-paper bg-ink/60 hover:bg-pink hover:text-ink"
-                    >
-                      <ChevronRight className="h-5 w-5" strokeWidth={2.5} />
-                    </button>
-                  </>
-                )}
-              </div>
-              <button
-                type="button"
-                onClick={() => setFocused(null)}
-                className="text-xs font-semibold tracking-[0.2em] text-paper/60 uppercase transition-colors hover:text-pink-soft"
-              >
-                ← voltar pra grade
-              </button>
-            </div>
-          ) : (
+          {!revealed ? null : (
             <div className="mt-10 space-y-16">
               {visibleProjects.map((project) => (
                 <div key={project.id}>
@@ -235,6 +205,69 @@ export function MaterialsSection() {
           )}
         </div>
       </div>
+
+      {focusedProject &&
+        focusedMedia &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-90 flex items-center justify-center bg-ink/90 p-4 backdrop-blur-sm"
+            onClick={() => setFocused(null)}
+          >
+            <button
+              type="button"
+              aria-label="Fechar"
+              onClick={() => setFocused(null)}
+              className="absolute top-5 right-5 flex h-12 w-12 items-center justify-center rounded-full border-2 border-paper text-paper transition-colors hover:bg-pink hover:text-ink"
+            >
+              <X className="h-5 w-5" strokeWidth={2.5} />
+            </button>
+            <div
+              className="relative flex aspect-video w-full max-w-4xl items-center justify-center overflow-hidden rounded-4xl border-2 border-paper/30 bg-paper/5"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {focusedMedia.type === 'video' ? (
+                <video
+                  key={focusedMedia.src}
+                  src={focusedMedia.src}
+                  controls
+                  autoPlay
+                  loop
+                  playsInline
+                  className="h-full w-full object-contain"
+                />
+              ) : (
+                <PlaceholderMedia
+                  src={focusedMedia.src}
+                  alt={focusedProject.title}
+                  hue={focusedProject.hue}
+                  label={focusedProject.title}
+                  className="object-contain"
+                />
+              )}
+              {focusedProject.gallery.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    aria-label="Anterior"
+                    onClick={() => moveFocused(-1)}
+                    className="absolute left-4 flex h-12 w-12 items-center justify-center rounded-full border-2 border-paper bg-ink/60 text-paper hover:bg-pink hover:text-ink"
+                  >
+                    <ChevronLeft className="h-5 w-5" strokeWidth={2.5} />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Próximo"
+                    onClick={() => moveFocused(1)}
+                    className="absolute right-4 flex h-12 w-12 items-center justify-center rounded-full border-2 border-paper bg-ink/60 text-paper hover:bg-pink hover:text-ink"
+                  >
+                    <ChevronRight className="h-5 w-5" strokeWidth={2.5} />
+                  </button>
+                </>
+              )}
+            </div>
+          </div>,
+          document.body,
+        )}
     </>
   )
 }
