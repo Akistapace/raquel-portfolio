@@ -30,8 +30,15 @@ export function WorksList({ onSelectProject }: WorksListProps) {
 
   const selectAndScroll = (projectId?: string) => {
     onSelectProject(projectId)
-    if (lenis) lenis.scrollTo('#servicos', { duration: 1.4 })
-    else document.querySelector('#servicos')?.scrollIntoView({ behavior: 'smooth' })
+    if (lenis) {
+      // o pin da seção de materiais tem seu próprio scroll-spacer; pular
+      // direto pra lá com o lenis.scrollTo às vezes deixa o ScrollTrigger
+      // dessincronizado da posição real (a animação do círculo trava).
+      // Recalcular tudo ao terminar o scroll resolve.
+      lenis.scrollTo('#servicos', { duration: 1.4, onComplete: () => ScrollTrigger.refresh() })
+    } else {
+      document.querySelector('#servicos')?.scrollIntoView({ behavior: 'smooth' })
+    }
   }
 
   // entrada dos itens da lista
