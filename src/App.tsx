@@ -17,7 +17,6 @@ import { useLenis } from '@/hooks/use-lenis'
  */
 function App() {
   const [ready, setReady] = useState(false)
-  const [activeProjectId, setActiveProjectId] = useState<string | undefined>()
   useLenis()
 
   return (
@@ -34,10 +33,10 @@ function App() {
           <Manifesto />
         </section>
         <section id="projetos">
-          <WorksList onSelectProject={setActiveProjectId} />
+          <WorksList />
         </section>
         <section id="servicos">
-          <MaterialsSection activeProjectId={activeProjectId} />
+          <MaterialsSection />
         </section>
         <section id="contato">
           <Contact />

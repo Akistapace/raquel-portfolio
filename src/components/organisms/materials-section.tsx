@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react'
@@ -9,11 +9,6 @@ import { cn } from '@/lib/utils'
 
 gsap.registerPlugin(ScrollTrigger)
 
-type MaterialsSectionProps = {
-  /** projeto pra abrir já filtrado — setado ao clicar num item de "O que eu crio" */
-  activeProjectId?: string
-}
-
 const ALL_TAB = 'todos'
 
 /**
@@ -23,20 +18,17 @@ const ALL_TAB = 'todos'
  * uma tela de altura, cortada) ganha scale junto — os dois terminam 100%
  * juntos, e só nesse instante o pin solta o scroll (a seção volta a ter
  * altura normal, rolável). Scrollando pra cima roda ao contrário sozinho,
- * porque é um scrub.
+ * porque é um scrub. Sempre abre na aba "Todos" — filtrar já entrando
+ * causava conteúdo de altura diferente e quebrava a transição.
  */
-export function MaterialsSection({ activeProjectId }: MaterialsSectionProps) {
+export function MaterialsSection() {
   const pinRef = useRef<HTMLDivElement>(null)
   const circleRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const contentInnerRef = useRef<HTMLDivElement>(null)
-  const [tab, setTab] = useState(activeProjectId ?? ALL_TAB)
+  const [tab, setTab] = useState(ALL_TAB)
   const [focused, setFocused] = useState<{ projectId: string; index: number } | null>(null)
   const [revealed, setRevealed] = useState(false)
-
-  useEffect(() => {
-    if (activeProjectId) setTab(activeProjectId)
-  }, [activeProjectId])
 
   useLayoutEffect(() => {
     const pin = pinRef.current

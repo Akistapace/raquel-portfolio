@@ -11,25 +11,19 @@ import { lenis } from '@/hooks/use-lenis'
 
 gsap.registerPlugin(ScrollTrigger)
 
-type WorksListProps = {
-  /** chamado ao clicar num item — a seção de materiais abre já filtrada nele */
-  onSelectProject: (projectId?: string) => void
-}
-
 /**
  * Lista editorial de projetos (estilo Dogstudio): títulos gigantes em serifa,
  * a linha ativa (hover no desktop, cruzando o centro no scroll) fica em
  * destaque e as outras esmaecem. No mobile, a mídia aparece inline.
  */
-export function WorksList({ onSelectProject }: WorksListProps) {
+export function WorksList() {
   const scope = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState<number | null>(null)
   const hoveringRef = useRef(false)
   const scrollActiveRef = useRef<number | null>(null)
   useWordReveal(scope)
 
-  const selectAndScroll = (projectId?: string) => {
-    onSelectProject(projectId)
+  const scrollToMaterials = () => {
     if (lenis) {
       // o pin da seção de materiais tem seu próprio scroll-spacer; pular
       // direto pra lá com o lenis.scrollTo às vezes deixa o ScrollTrigger
@@ -123,7 +117,7 @@ export function WorksList({ onSelectProject }: WorksListProps) {
     <div ref={scope} className="relative mx-auto w-full max-w-7xl px-6 pt-28 pb-10 sm:px-10 lg:pt-36 lg:pb-14">
       <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <SectionHeading eyebrow="Serviços" title="O que eu *crio*" />
-        <Button variant="outline" size="sm" onClick={() => selectAndScroll()} className="shrink-0">
+        <Button variant="outline" size="sm" onClick={scrollToMaterials} className="shrink-0">
           Ver todos os materiais
         </Button>
       </div>
@@ -180,7 +174,7 @@ export function WorksList({ onSelectProject }: WorksListProps) {
                   className="group block w-full py-8 text-left"
                   onMouseEnter={() => onRowEnter(i)}
                   onMouseLeave={onRowLeave}
-                  onClick={() => selectAndScroll(project.id)}
+                  onClick={scrollToMaterials}
                 >
                   {content}
                 </button>
