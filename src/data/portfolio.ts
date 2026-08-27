@@ -4,17 +4,23 @@
  * Se o arquivo não existir, os componentes mostram um placeholder elegante.
  */
 
+import { calculateAge } from '@/lib/age'
+
 /** Resolve um path de `public/` contra o base do Vite (`/raquel-portfolio/` no GitHub Pages). */
 const asset = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, '')}`
+
+/** Aniversário da Raquel: 31/05. Idade recalculada sempre a partir do ano de nascimento. */
+const RAQUEL_BIRTH_YEAR = 1999
+const raquelAge = calculateAge(RAQUEL_BIRTH_YEAR, 5, 31)
 
 export const profile = {
   name: 'Raquel Aquistapace',
   role: 'Social Media',
   tagline: 'Conteúdo com a cara da sua marca, para atrair o público certo.',
   about:
-    'Eu crio conteúdos de alta qualidade alinhados com o estilo único da sua marca, para atrair o seu público-alvo. Conheço tendências e marketing de mídia social e me sinto à vontade para criar uma ampla variedade de conteúdo. Sou uma alma versátil, capaz de mergulhar em diferentes temas e estilos.',
+    'Social Media e Estrategista Digital. Ajudo marcas e profissionais a transformarem suas redes sociais em canais atraentes, autênticos e focados em conversão. Meu trabalho vai além da criação de posts bonitos: eu analiso o seu público, entendo seus objetivos de negócio e desenvolvo um planejamento de conteúdo que gera autoridade, conecta com a audiência e atrai novos clientes. Seja para estruturar a presença digital da sua empresa do zero ou para escalar seus resultados com conteúdos estratégicos em vídeo e feed, estou pronta para impulsionar a sua marca. Sou uma alma versátil, capaz de mergulhar em diferentes temas e estilos.',
   facts: [
-    '27 anos, estudante de marketing',
+    `${raquelAge} anos, estudante de marketing`,
     'Graduada em turismo',
     'Mochileira desbravando a Ásia',
     'Obcecada por fotografia, viagens, música, moda e beleza',
@@ -24,12 +30,12 @@ export const profile = {
     'Do recrutamento ao ensino, passando por psicologia, doceria, viagens e beleza, já criei conteúdo para realidades bem diferentes. Como social media, produzo para Instagram, Facebook, YouTube e TikTok: edição de vídeo e foto, legendas, narração, ebooks, curso online, identidade visual, CTAs e roteiros para lives. E quando o cliente quer aprender a fazer sozinho, eu ensino: plataformas, aplicativos e imagem visual.',
   portrait: asset('/assets/raquel-no-bg.png'),
   phone: '+55 51 980451732',
-  whatsapp: 'https://wa.me/55519880451732',
+  whatsapp: 'https://wa.me/5551980451732',
   instagram: '@raquelruffinomkt',
   socials: [
     { label: 'Instagram', href: 'https://instagram.com/raquelruffinomkt' },
     { label: 'LinkedIn', href: 'https://www.linkedin.com/in/raquelrnascimento/' },
-    { label: 'WhatsApp', href: 'https://wa.me/55519880451732' },
+    { label: 'WhatsApp', href: 'https://wa.me/5551980451732' },
   ],
   skills: [
     'Reels & TikTok',

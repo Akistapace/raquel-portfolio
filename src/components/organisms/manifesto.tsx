@@ -72,7 +72,7 @@ export function Manifesto() {
           <SectionHeading eyebrow="Sobre mim" title="Hello!! Sou a Raquel" />
           <p
             aria-label={profile.about}
-            className="scrub-block font-display text-2xl leading-snug font-medium text-ink sm:text-3xl lg:text-4xl"
+            className="scrub-block font-display text-lg leading-snug font-medium text-ink sm:text-xl lg:text-2xl"
           >
             {profile.about.split(' ').map((word, i) => (
               <span key={i} aria-hidden className="scrub-word inline-block">
