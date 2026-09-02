@@ -155,6 +155,7 @@ export const projects: Project[] = [
           asset('/assets/carrossel-cilios-3.jpg'),
           asset('/assets/carrossel-cilios-4.jpg'),
           asset('/assets/carrossel-cilios-5.jpg'),
+          asset('/assets/carrossel-cilios-6.jpg'),
         ],
       },
       
@@ -222,6 +223,7 @@ export const projects: Project[] = [
     platforms: ['Instagram', 'LinkedIn'],
     gallery: [
       { type: 'image', src: asset('/assets/criativos3.jpeg') },
+      { type: 'image', src: asset('/assets/certificado.jpeg') },
       { type: 'image', src: asset('/assets/criativos4.jpeg') },
       { type: 'image', src: asset('/assets/carrossel-post-7.jpeg') },
       { type: 'image', src: asset('/assets/carrossel-post-8.jpeg') },
@@ -289,7 +291,6 @@ export const projects: Project[] = [
       { type: 'image', src: asset('/assets/fotografia-4.jpg') },
       { type: 'image', src: asset('/assets/fotografia-5.jpg') },
       { type: 'image', src: asset('/assets/fotografia-6.jpg') },
-      { type: 'image', src: asset('/assets/fotografia-7.jpg') },
       { type: 'image', src: asset('/assets/fotografia-8.jpg') },
       { type: 'image', src: asset('/assets/fotografia-9.jpg') },
       { type: 'image', src: asset('/assets/fotografia-10.jpg') },

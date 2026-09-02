@@ -8,7 +8,7 @@ import { SectionHeading } from '@/components/molecules/section-heading'
 import { PlaceholderMedia } from '@/components/atoms/placeholder-media'
 import { lenis } from '@/hooks/use-lenis'
 import { cn } from '@/lib/utils'
-import { mediaCoverSrc, mediaExternalUrl, mediaKey } from '@/lib/media'
+import { mediaCoverSrc, mediaExternalUrl, mediaKey, preloadMediaImages } from '@/lib/media'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -53,6 +53,7 @@ export function MaterialsSection() {
   const [tab, setTab] = useState(ALL_TAB)
   const [focused, setFocused] = useState<{ projectId: string; index: number; subIndex: number } | null>(null)
   const [revealed, setRevealed] = useState(false)
+  const swipeStartRef = useRef<{ x: number; y: number } | null>(null)
 
   useLayoutEffect(() => {
     const pin = pinRef.current
@@ -162,6 +163,24 @@ export function MaterialsSection() {
     const nextMedia = focusedProject.gallery[nextIndex]
     const nextSubIndex = nextMedia.type === 'carousel' && dir === -1 ? nextMedia.images.length - 1 : 0
     setFocused({ projectId: focused.projectId, index: nextIndex, subIndex: nextSubIndex })
+  }
+
+  const openMedia = async (projectId: string, index: number) => {
+    const project = projects.find((item) => item.id === projectId)
+    const media = project?.gallery[index]
+    if (!project || !media) return
+
+    const mediaToPreload = [media]
+    let nextIndex = index
+    for (let count = 0; count < 2 && count < project.gallery.length - 1; count++) {
+      do {
+        nextIndex = (nextIndex + 1) % project.gallery.length
+      } while (mediaExternalUrl(project.gallery[nextIndex]) && nextIndex !== index)
+      mediaToPreload.push(project.gallery[nextIndex])
+    }
+
+    await Promise.all(mediaToPreload.map(preloadMediaImages))
+    setFocused({ projectId, index, subIndex: 0 })
   }
 
   return (
@@ -299,7 +318,7 @@ export function MaterialsSection() {
                           <button
                             key={mediaKey(media)}
                             type="button"
-                            onClick={() => setFocused({ projectId: project.id, index: i, subIndex: 0 })}
+                            onClick={() => void openMedia(project.id, i)}
                             className={tileClassName}
                           >
                             {tileContent}
@@ -333,6 +352,24 @@ export function MaterialsSection() {
             <div
               className="relative flex max-h-[85vh] max-w-[95vw] items-center justify-center overflow-hidden rounded-4xl border-2 border-paper/30 bg-paper/5"
               onClick={(e) => e.stopPropagation()}
+              onPointerDown={(e) => {
+                if ((e.target as HTMLElement).closest('button')) return
+                swipeStartRef.current = { x: e.clientX, y: e.clientY }
+                e.currentTarget.setPointerCapture(e.pointerId)
+              }}
+              onPointerUp={(e) => {
+                const start = swipeStartRef.current
+                swipeStartRef.current = null
+                if (!start) return
+                const deltaX = e.clientX - start.x
+                const deltaY = e.clientY - start.y
+                if (Math.abs(deltaX) < 50 || Math.abs(deltaX) <= Math.abs(deltaY)) return
+                moveFocused(deltaX < 0 ? 1 : -1)
+              }}
+              onPointerCancel={() => {
+                swipeStartRef.current = null
+              }}
+              style={{ touchAction: 'pan-y' }}
             >
               {focusedMedia.type === 'video' ? (
                 <video

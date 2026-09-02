@@ -15,6 +15,24 @@ export function mediaCoverSrc(media: ProjectMedia): string | undefined {
   }
 }
 
+export async function preloadMediaImages(media: ProjectMedia): Promise<void> {
+  const sources = media.type === 'image' ? [media.src] : media.type === 'carousel' ? media.images : []
+
+  await Promise.all(
+    sources.map(
+      (src) =>
+        new Promise<void>((resolve) => {
+          const image = new Image()
+          const finish = () => resolve()
+          image.onload = finish
+          image.onerror = finish
+          image.src = src
+          if (image.complete) finish()
+        }),
+    ),
+  )
+}
+
 /** Chave estável de React pra um item de galeria, qualquer que seja o tipo. */
 export function mediaKey(media: ProjectMedia): string {
   switch (media.type) {
