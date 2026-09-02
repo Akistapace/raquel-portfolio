@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { ProjectMedia } from '@/data/portfolio'
 import { PlaceholderMedia } from '@/components/atoms/placeholder-media'
+import { mediaCoverSrc } from '@/lib/media'
 
 type CyclingMediaProps = {
   gallery: ProjectMedia[]
@@ -39,11 +40,13 @@ export function CyclingMedia({
   const current = gallery[index]
   if (!current) return null
 
+  const currentCoverSrc = mediaCoverSrc(current)
+
   // pré-carrega o próximo item do ciclo (vídeo escondido, sem tocar) pra troca
   // não esperar o buffer — sem baixar a galeria inteira de uma vez.
   const next = gallery.length > 1 ? gallery[(index + 1) % gallery.length] : undefined
   const preload =
-    next && next.src !== current.src && next.type === 'video' ? (
+    next && next.type === 'video' && next.src !== currentCoverSrc ? (
       <video src={next.src} preload="auto" muted playsInline className="hidden" aria-hidden />
     ) : null
 
@@ -67,7 +70,7 @@ export function CyclingMedia({
 
   return (
     <>
-      <PlaceholderMedia src={current.src} alt={alt} hue={hue} label={label} className={className} />
+      <PlaceholderMedia src={currentCoverSrc} alt={alt} hue={hue} label={label} className={className} />
       {preload}
     </>
   )

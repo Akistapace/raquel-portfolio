@@ -16,6 +16,10 @@ gsap.registerPlugin(ScrollTrigger)
  * a linha ativa (hover no desktop, cruzando o centro no scroll) fica em
  * destaque e as outras esmaecem. No mobile, a mídia aparece inline.
  */
+// projetos que só existem pra filtrar a grid de materiais (ex: um desdobramento
+// de outro projeto) não geram linha própria aqui — evita duplicar o mesmo tema.
+const listedProjects = projects.filter((project) => !project.hideFromList)
+
 export function WorksList() {
   const scope = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState<number | null>(null)
@@ -123,7 +127,7 @@ export function WorksList() {
       </div>
 
       <ul className="work-rows mt-16 border-t border-ink/10">
-        {projects.map((project, i) => {
+        {listedProjects.map((project, i) => {
           const hasGallery = project.gallery.length > 1
           const content = (
             <>

@@ -27,7 +27,7 @@ export const profile = {
     'E também por gatinhos e chocolate ✿',
   ],
   experience:
-    'Do recrutamento ao ensino, passando por psicologia, doceria, viagens e beleza, já criei conteúdo para realidades bem diferentes. Como social media, produzo para Instagram, Facebook, YouTube e TikTok: edição de vídeo e foto, legendas, narração, ebooks, curso online, identidade visual, CTAs e roteiros para lives. E quando o cliente quer aprender a fazer sozinho, eu ensino: plataformas, aplicativos e imagem visual.',
+    'Do recrutamento e seleção à educação, passando por psicologia, metalúrgica, doceria, viagens, studio de beleza, perfumaria e semijoias, já criei conteúdo para realidades bem diferentes. Como social media, produzo para Instagram, Facebook, YouTube e TikTok: edição de vídeo e foto, legendas, narração, ebooks, curso online, identidade visual, CTAs e roteiros para lives. E quando o cliente quer aprender a fazer sozinho, eu ensino: plataformas, aplicativos e imagem visual.',
   portrait: asset('/assets/raquel-no-bg.png'),
   phone: '+55 51 980451732',
   whatsapp: 'https://wa.me/5551980451732',
@@ -49,7 +49,15 @@ export const profile = {
   ],
 }
 
-export type ProjectMedia = { type: 'video' | 'image'; src: string }
+export type ProjectMedia =
+  | { type: 'video'; src: string }
+  | { type: 'image'; src: string }
+  /** sequência de imagens de 1 post carrossel do Instagram — várias imagens, 1 item só */
+  | { type: 'carousel'; images: string[] }
+  /** vídeo hospedado no YouTube — clicar abre o vídeo original em nova aba */
+  | { type: 'youtube'; id: string }
+  /** vídeo hospedado fora (ex: Facebook) — clicar abre o link original em nova aba */
+  | { type: 'link'; url: string }
 
 export type Project = {
   id: string
@@ -65,6 +73,8 @@ export type Project = {
   gallery: ProjectMedia[]
   /** plataformas onde esse tipo de conteúdo roda — vira badge extra na lista */
   platforms?: string[]
+  /** true = some da lista editorial "O que eu crio" (home); continua na grid de materiais */
+  hideFromList?: boolean
 }
 
 /** Tipos de conteúdo que produzo — viram a lista grande de "trabalhos". */
@@ -95,14 +105,64 @@ export const projects: Project[] = [
     hue: '#CDBFEA',
     platforms: ['Instagram', 'LinkedIn'],
     gallery: [
+      {
+        type: 'carousel',
+        images: [
+          asset('/assets/carrossel-beleza-1.jpg'),
+          asset('/assets/carrossel-beleza-2.jpg'),
+          asset('/assets/carrossel-beleza-3.jpg'),
+          asset('/assets/carrossel-beleza-4.jpg'),
+          asset('/assets/carrossel-beleza-5.jpg'),
+          asset('/assets/carrossel-beleza-6.jpg'),
+          asset('/assets/carrossel-beleza-7.jpg'),
+          asset('/assets/carrossel-beleza-8.jpg'),
+        ],
+      },
+      {
+        type: 'carousel',
+        images: [
+          asset('/assets/carrossel-mocha-1.jpg'),
+          asset('/assets/carrossel-mocha-2.jpg'),
+          asset('/assets/carrossel-mocha-3.jpg'),
+        ],
+      },
+      {
+        type: 'carousel',
+        images: [
+          asset('/assets/carrossel-leitura-1.jpg'),
+          asset('/assets/carrossel-leitura-2.jpg'),
+          asset('/assets/carrossel-leitura-3.jpg'),
+        ],
+      },
+      {
+        type: 'carousel',
+        images: [
+          asset('/assets/carrossel-selecao-1.jpg'),
+          asset('/assets/carrossel-selecao-2.jpg'),
+          asset('/assets/carrossel-selecao-3.jpg'),
+          asset('/assets/carrossel-selecao-4.jpg'),
+          asset('/assets/carrossel-selecao-5.jpg'),
+          asset('/assets/carrossel-selecao-6.jpg'),
+          asset('/assets/carrossel-selecao-7.jpg'),
+          // asset('/assets/carrossel-4.mp4'),
+        ],
+      },
+      {
+        type: 'carousel',
+        images: [
+          asset('/assets/carrossel-cilios-1.jpg'),
+          asset('/assets/carrossel-cilios-2.jpg'),
+          asset('/assets/carrossel-cilios-3.jpg'),
+          asset('/assets/carrossel-cilios-4.jpg'),
+          asset('/assets/carrossel-cilios-5.jpg'),
+        ],
+      },
+      
       { type: 'video', src: asset('/assets/carrossel-1.mp4') },
       { type: 'video', src: asset('/assets/carrossel-2.mp4') },
       { type: 'video', src: asset('/assets/carrossel-3.mp4') },
-      { type: 'video', src: asset('/assets/carrossel-4.mp4') },
       { type: 'video', src: asset('/assets/carrossel-5.mp4') },
       { type: 'video', src: asset('/assets/carrossel-6.mp4') },
-      { type: 'video', src: asset('/assets/carrossel-7.mp4') },
-      { type: 'video', src: asset('/assets/carrossel-8.mp4') },
       { type: 'video', src: asset('/assets/carrossel-9.mp4') },
     ],
   },
@@ -117,8 +177,22 @@ export const projects: Project[] = [
     platforms: ['Instagram', 'LinkedIn'],
     gallery: [
       { type: 'image', src: asset('/assets/carrossel-post-1.jpeg') },
-      { type: 'image', src: asset('/assets/carrossel-post-2.jpeg') },
-      { type: 'image', src: asset('/assets/carrossel-post-3.jpeg') },
+      { type: 'carousel', images: [
+        asset('/assets/carrossel-post-2.jpeg'),
+        asset('/assets/post-3.jpeg'),
+      ]},
+      { type: 'carousel', images: [
+        asset('/assets/carrossel-post-3.jpeg'), 
+        asset('/assets/post-1.jpeg'),
+      ]},
+      {
+        type: 'carousel',
+        images: [
+          asset('/assets/post-2.jpeg'),
+        ],
+      },
+      { type: 'image', src: asset('/assets/trabalho-digital.jpg') },
+      { type: 'image', src: asset('/assets/post-4.jpeg') },
     ],
   },
   {
@@ -133,6 +207,8 @@ export const projects: Project[] = [
     gallery: [
       { type: 'image', src: asset('/assets/criativos1.jpeg') },
       { type: 'image', src: asset('/assets/carrossel-post-12.jpeg') },
+      { type: 'image', src: asset('/assets/stories-1.jpg') },
+      { type: 'image', src: asset('/assets/stories-2.jpg') },
     ],
   },
   {
@@ -151,6 +227,16 @@ export const projects: Project[] = [
       { type: 'image', src: asset('/assets/carrossel-post-8.jpeg') },
       { type: 'image', src: asset('/assets/criativos.jpeg') },
       { type: 'image', src: asset('/assets/carrossel-post-10.jpeg') },
+      { type: 'image', src: asset('/assets/criativo-1.jpeg') },
+      {
+        type: 'carousel',
+        images: [
+          asset('/assets/criativo-carrossel-1.jpeg'),
+          asset('/assets/criativo-carrossel-2.jpeg'),
+          asset('/assets/criativo-carrossel-3.jpeg'),
+          asset('/assets/criativo-carrossel-4.jpeg'),
+        ],
+      },
     ],
   },
   {
@@ -165,7 +251,27 @@ export const projects: Project[] = [
     platforms: ['YouTube'],
     gallery: [
       { type: 'video', src: asset('/assets/youtube-2.mp4') },
-      { type: 'image', src: asset('/assets/trabalho-youtube.png') },
+      { type: 'youtube', id: 'omaVr5AFUlY' },
+      { type: 'youtube', id: 'ksMpTcc0oBg' },
+      { type: 'youtube', id: 'p19gm7Q_vgQ' },
+      { type: 'youtube', id: '8BCuby0fNWo' },
+      { type: 'youtube', id: 'y7VIc5UFChw' },
+      { type: 'youtube', id: 'Xv7VVQiytGw' },
+    ],
+  },
+  {
+    id: 'suporte-lives',
+    title: 'Suporte a Lives',
+    category: 'Lives',
+    year: 'YT',
+    description: 'Roteirização de perguntas, suporte ao vivo, respostas a seguidores...',
+    image: asset('/assets/trabalho-youtube.png'),
+    hue: '#FFB4A2',
+    platforms: ['YouTube', 'Facebook'],
+    gallery: [
+      { type: 'youtube', id: 'RfcY2D8Pn38' },
+      { type: 'youtube', id: 'iJ-FeT01pnI' },
+      { type: 'link', url: 'https://www.facebook.com/share/v/1Ejgdcx4VS/' },
     ],
   },
   {
@@ -176,7 +282,24 @@ export const projects: Project[] = [
     description: 'Produção e edição de fotos com olhar de moda e beleza.',
     image: asset('/assets/trabalho-foto.png'),
     hue: '#DDD4F0',
-    gallery: [{ type: 'image', src: asset('/assets/trabalho-foto.png') }],
+    gallery: [
+      { type: 'image', src: asset('/assets/fotografia-1.jpg') },
+      { type: 'image', src: asset('/assets/fotografia-2.jpg') },
+      { type: 'image', src: asset('/assets/fotografia-3.jpg') },
+      { type: 'image', src: asset('/assets/fotografia-4.jpg') },
+      { type: 'image', src: asset('/assets/fotografia-5.jpg') },
+      { type: 'image', src: asset('/assets/fotografia-6.jpg') },
+      { type: 'image', src: asset('/assets/fotografia-7.jpg') },
+      { type: 'image', src: asset('/assets/fotografia-8.jpg') },
+      { type: 'image', src: asset('/assets/fotografia-9.jpg') },
+      { type: 'image', src: asset('/assets/fotografia-10.jpg') },
+      { type: 'image', src: asset('/assets/fotografia-11.jpg') },
+      { type: 'image', src: asset('/assets/fotografia-12.jpg') },
+      { type: 'image', src: asset('/assets/fotografia-13.jpg') },
+      { type: 'image', src: asset('/assets/fotografia-14.jpg') },
+      { type: 'image', src: asset('/assets/fotografia-15.jpg') },
+      { type: 'image', src: asset('/assets/fotografia-16.jpg') },
+    ],
   },
   {
     id: 'produtos-digitais',
@@ -189,7 +312,23 @@ export const projects: Project[] = [
     hue: '#EFA5CC',
     gallery: [
       { type: 'video', src: asset('/assets/ebook-1.mp4') },
-      { type: 'image', src: asset('/assets/trabalho-digital.jpg') },
+      { type: 'video', src: asset('/assets/prod-digital-1.mp4') },
+    ],
+  },
+  {
+    id: 'identidade-visual-perfis',
+    title: 'Identidade Visual · Perfis',
+    category: 'Branding',
+    year: 'Redes',
+    description: 'Vídeos de apresentação para perfis de redes sociais, no formato de tela cheia.',
+    image: asset('/assets/identidade-visual-logo.jpeg'),
+    video: asset('/assets/idv-redes.mp4'),
+    hue: '#A8D8CC',
+    platforms: ['Instagram'],
+    hideFromList: true,
+    gallery: [
+      { type: 'video', src: asset('/assets/idv-redes.mp4') },
+      { type: 'video', src: asset('/assets/idv-redes-1.mp4') },
     ],
   },
   {
@@ -207,6 +346,9 @@ export const projects: Project[] = [
       { type: 'image', src: asset('/assets/identidade-visual-cartao-1.jpeg') },
       { type: 'image', src: asset('/assets/identidade-visual-cartao-2.jpeg') },
       { type: 'image', src: asset('/assets/identidade-visual-cartao.jpeg') },
+      { type: 'image', src: asset('/assets/idv-1.png') },
+      { type: 'image', src: asset('/assets/idv-2.jpeg') },
+      { type: 'image', src: asset('/assets/idv-3.jpeg') },
     ],
   },
 ]

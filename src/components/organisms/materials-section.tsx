@@ -2,16 +2,38 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { ArrowUpRight, ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { ArrowUpRight, ChevronLeft, ChevronRight, Images, X } from 'lucide-react'
 import { projects } from '@/data/portfolio'
 import { SectionHeading } from '@/components/molecules/section-heading'
 import { PlaceholderMedia } from '@/components/atoms/placeholder-media'
 import { lenis } from '@/hooks/use-lenis'
 import { cn } from '@/lib/utils'
+import { mediaCoverSrc, mediaExternalUrl, mediaKey } from '@/lib/media'
 
 gsap.registerPlugin(ScrollTrigger)
 
 const ALL_TAB = 'todos'
+
+/** Imagem do lightbox no tamanho real (sem crop) — cai pro placeholder chapado
+ * se o asset ainda não existir, num box com proporção de post (4:5). */
+function LightboxImage({ src, alt, hue, label }: { src?: string; alt: string; hue?: string; label?: string }) {
+  const [failed, setFailed] = useState(false)
+  if (!src || failed) {
+    return (
+      <div className="aspect-4/5 h-[70vh] max-h-[85vh]">
+        <PlaceholderMedia alt={alt} hue={hue} label={label} />
+      </div>
+    )
+  }
+  return (
+    <img
+      src={src}
+      alt={alt}
+      onError={() => setFailed(true)}
+      className="h-auto max-h-[85vh] w-auto max-w-[95vw] rounded-[inherit]"
+    />
+  )
+}
 
 /**
  * Transição presa no scroll (pin, uma tela de altura), em 2 passos: 1) um
@@ -29,7 +51,7 @@ export function MaterialsSection() {
   const contentRef = useRef<HTMLDivElement>(null)
   const contentInnerRef = useRef<HTMLDivElement>(null)
   const [tab, setTab] = useState(ALL_TAB)
-  const [focused, setFocused] = useState<{ projectId: string; index: number } | null>(null)
+  const [focused, setFocused] = useState<{ projectId: string; index: number; subIndex: number } | null>(null)
   const [revealed, setRevealed] = useState(false)
 
   useLayoutEffect(() => {
@@ -111,11 +133,35 @@ export function MaterialsSection() {
   const visibleProjects = tab === ALL_TAB ? projects : projects.filter((p) => p.id === tab)
   const focusedProject = focused ? projects.find((p) => p.id === focused.projectId) : undefined
   const focusedMedia = focusedProject && focused ? focusedProject.gallery[focused.index] : undefined
+  const focusedImageSrc =
+    focusedMedia?.type === 'image'
+      ? focusedMedia.src
+      : focusedMedia?.type === 'carousel' && focused
+        ? focusedMedia.images[focused.subIndex]
+        : undefined
+  const canNavigate =
+    !!focusedProject &&
+    (focusedProject.gallery.length > 1 || (focusedMedia?.type === 'carousel' && focusedMedia.images.length > 1))
 
   const moveFocused = (dir: 1 | -1) => {
     if (!focused || !focusedProject) return
+    if (focusedMedia?.type === 'carousel') {
+      const nextSub = focused.subIndex + dir
+      if (nextSub >= 0 && nextSub < focusedMedia.images.length) {
+        setFocused({ ...focused, subIndex: nextSub })
+        return
+      }
+    }
     const len = focusedProject.gallery.length
-    setFocused({ projectId: focused.projectId, index: (focused.index + dir + len) % len })
+    // pula itens que abrem link externo (youtube/link) — não têm o que mostrar no lightbox
+    let nextIndex = focused.index
+    for (let step = 0; step < len; step++) {
+      nextIndex = (nextIndex + dir + len) % len
+      if (!mediaExternalUrl(focusedProject.gallery[nextIndex])) break
+    }
+    const nextMedia = focusedProject.gallery[nextIndex]
+    const nextSubIndex = nextMedia.type === 'carousel' && dir === -1 ? nextMedia.images.length - 1 : 0
+    setFocused({ projectId: focused.projectId, index: nextIndex, subIndex: nextSubIndex })
   }
 
   return (
@@ -165,42 +211,105 @@ export function MaterialsSection() {
 
           {!revealed ? null : (
             <div className="mt-10 space-y-16">
-              {visibleProjects.map((project) => (
-                <div key={project.id}>
-                  <h3 className="font-display text-3xl font-bold tracking-tight uppercase sm:text-4xl">
-                    {project.title}
-                  </h3>
-                  <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {project.gallery.map((media, i) => (
-                      <button
-                        key={media.src}
-                        type="button"
-                        onClick={() => setFocused({ projectId: project.id, index: i })}
-                        className="group relative aspect-video overflow-hidden rounded-2xl border-2 border-paper/15 transition-colors hover:border-pink"
-                      >
-                        {media.type === 'video' ? (
-                          <video
-                            src={media.src}
-                            muted
-                            loop
-                            autoPlay
-                            playsInline
-                            className="h-full w-full object-cover"
-                          />
+              {visibleProjects.map((project) => {
+                // Identidade Visual: tamanhos livres, empilhado tipo masonry (sem aspect-ratio fixo)
+                const isMasonry = project.id === 'identidade-visual'
+                return (
+                  <div key={project.id}>
+                    <h3 className="font-display text-3xl font-bold tracking-tight uppercase sm:text-4xl">
+                      {project.title}
+                    </h3>
+                    <div
+                      className={cn(
+                        'mt-6 gap-4',
+                        isMasonry ? 'columns-1 sm:columns-2' : 'grid grid-cols-1 sm:grid-cols-2',
+                        !isMasonry && project.id !== 'youtube' && 'lg:grid-cols-3',
+                      )}
+                    >
+                      {project.gallery.map((media, i) => {
+                        const externalUrl = mediaExternalUrl(media)
+                        const coverSrc = mediaCoverSrc(media)
+                        const aspectClass = isMasonry
+                          ? media.type !== 'video' && !coverSrc
+                            ? 'aspect-4/5' // sem asset ainda — precisa de altura própria pro placeholder
+                            : ''
+                          : project.id === 'video-curto' ||
+                              project.id === 'stories' ||
+                              project.id === 'produtos-digitais' ||
+                              project.id === 'identidade-visual-perfis'
+                            ? // Reels, TikTok, Stories, Produtos digitais e Perfis: formato de tela cheia (1080×1920, 9:16)
+                              'aspect-9/16'
+                            : project.id === 'carrosseis' ||
+                                project.id === 'posts' ||
+                                project.id === 'fotografia' ||
+                                project.id === 'criativos'
+                              ? // Carrosséis, Posts, Fotografia e Criativos: formato de post do Instagram (1080×1350, 4:5)
+                                'aspect-4/5'
+                              : 'aspect-video'
+
+                        const tileClassName = cn(
+                          'group relative block overflow-hidden rounded-2xl border-2 border-paper/15 transition-colors hover:border-pink',
+                          aspectClass,
+                          isMasonry && 'mb-4 w-full',
+                        )
+                        const mediaClassName = isMasonry ? 'h-auto w-full object-contain' : 'h-full w-full object-cover'
+
+                        const tileContent = (
+                          <>
+                            {media.type === 'video' ? (
+                              <video src={media.src} muted loop autoPlay playsInline className={mediaClassName} />
+                            ) : (
+                              <PlaceholderMedia
+                                src={coverSrc}
+                                alt={project.title}
+                                hue={project.hue}
+                                label={project.title}
+                                className={isMasonry ? mediaClassName : undefined}
+                              />
+                            )}
+                            {media.type === 'carousel' && (
+                              <span
+                                aria-hidden
+                                className="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-ink/70 px-2 py-1 text-[10px] font-semibold text-paper backdrop-blur-sm"
+                              >
+                                <Images className="h-3 w-3" strokeWidth={2.5} />
+                                {media.images.length}
+                              </span>
+                            )}
+                            <span
+                              aria-hidden
+                              className="absolute inset-0 flex items-center justify-center bg-ink/0 opacity-0 transition-all duration-300 group-hover:bg-ink/30 group-hover:opacity-100"
+                            >
+                              <ArrowUpRight className="h-8 w-8 text-paper" strokeWidth={2.5} />
+                            </span>
+                          </>
+                        )
+
+                        return externalUrl ? (
+                          <a
+                            key={mediaKey(media)}
+                            href={externalUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={tileClassName}
+                          >
+                            {tileContent}
+                          </a>
                         ) : (
-                          <PlaceholderMedia src={media.src} alt={project.title} hue={project.hue} label={project.title} />
-                        )}
-                        <span
-                          aria-hidden
-                          className="absolute inset-0 flex items-center justify-center bg-ink/0 opacity-0 transition-all duration-300 group-hover:bg-ink/30 group-hover:opacity-100"
-                        >
-                          <ArrowUpRight className="h-8 w-8 text-paper" strokeWidth={2.5} />
-                        </span>
-                      </button>
-                    ))}
+                          <button
+                            key={mediaKey(media)}
+                            type="button"
+                            onClick={() => setFocused({ projectId: project.id, index: i, subIndex: 0 })}
+                            className={tileClassName}
+                          >
+                            {tileContent}
+                          </button>
+                        )
+                      })}
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>
@@ -222,7 +331,7 @@ export function MaterialsSection() {
               <X className="h-5 w-5" strokeWidth={2.5} />
             </button>
             <div
-              className="relative flex aspect-video w-full max-w-4xl items-center justify-center overflow-hidden rounded-4xl border-2 border-paper/30 bg-paper/5"
+              className="relative flex max-h-[85vh] max-w-[95vw] items-center justify-center overflow-hidden rounded-4xl border-2 border-paper/30 bg-paper/5"
               onClick={(e) => e.stopPropagation()}
             >
               {focusedMedia.type === 'video' ? (
@@ -233,18 +342,29 @@ export function MaterialsSection() {
                   autoPlay
                   loop
                   playsInline
-                  className="h-full w-full object-contain"
+                  className="h-auto max-h-[85vh] w-auto max-w-[95vw] rounded-[inherit]"
                 />
               ) : (
-                <PlaceholderMedia
-                  src={focusedMedia.src}
+                <LightboxImage
+                  key={focusedImageSrc}
+                  src={focusedImageSrc}
                   alt={focusedProject.title}
                   hue={focusedProject.hue}
                   label={focusedProject.title}
-                  className="object-contain"
                 />
               )}
-              {focusedProject.gallery.length > 1 && (
+              {focusedMedia.type === 'carousel' && focusedMedia.images.length > 1 && (
+                <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-1.5">
+                  {focusedMedia.images.map((_, i) => (
+                    <span
+                      key={i}
+                      aria-hidden
+                      className={cn('h-1.5 w-1.5 rounded-full', i === focused?.subIndex ? 'bg-pink' : 'bg-paper/40')}
+                    />
+                  ))}
+                </div>
+              )}
+              {canNavigate && (
                 <>
                   <button
                     type="button"
