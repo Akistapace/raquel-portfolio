@@ -1,14 +1,14 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
+import { PlaceholderMedia } from '@/components/atoms/placeholder-media'
+import { SectionHeading } from '@/components/molecules/section-heading'
+import { projects } from '@/data/portfolio'
+import { lenis } from '@/hooks/use-lenis'
+import { mediaCoverSrc, mediaExternalUrl, mediaKey, preloadMediaImages } from '@/lib/media'
+import { cn } from '@/lib/utils'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ArrowUpRight, ChevronLeft, ChevronRight, Images, X } from 'lucide-react'
-import { projects } from '@/data/portfolio'
-import { SectionHeading } from '@/components/molecules/section-heading'
-import { PlaceholderMedia } from '@/components/atoms/placeholder-media'
-import { lenis } from '@/hooks/use-lenis'
-import { cn } from '@/lib/utils'
-import { mediaCoverSrc, mediaExternalUrl, mediaKey, preloadMediaImages } from '@/lib/media'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 gsap.registerPlugin(ScrollTrigger)
 

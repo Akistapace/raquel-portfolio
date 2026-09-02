@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
-import type { ProjectMedia } from '@/data/portfolio'
 import { PlaceholderMedia } from '@/components/atoms/placeholder-media'
+import type { ProjectMedia } from '@/data/portfolio'
 import { mediaCoverSrc } from '@/lib/media'
+import { useEffect, useState } from 'react'
 
 type CyclingMediaProps = {
   gallery: ProjectMedia[]
