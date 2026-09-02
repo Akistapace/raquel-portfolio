@@ -1,13 +1,13 @@
-import { useLayoutEffect, useRef, useState } from 'react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { projects } from '@/data/portfolio'
-import { SectionHeading } from '@/components/molecules/section-heading'
 import { Badge } from '@/components/atoms/badge'
 import { Button } from '@/components/atoms/button'
+import { SectionHeading } from '@/components/molecules/section-heading'
 import { CyclingMedia } from '@/components/organisms/works-list-media'
-import { useWordReveal } from '@/hooks/use-word-reveal'
+import { projects } from '@/data/portfolio'
 import { lenis } from '@/hooks/use-lenis'
+import { useWordReveal } from '@/hooks/use-word-reveal'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useLayoutEffect, useRef, useState } from 'react'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -133,7 +133,7 @@ export function WorksList() {
             <>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-8">
                 <h3
-                  className={`font-display text-4xl leading-none font-bold tracking-tight uppercase transition-all duration-500 ease-out-expo sm:text-6xl lg:text-7xl ${
+                    className={`font-display text-3xl leading-none font-bold tracking-tight uppercase transition-all duration-500 ease-out-expo sm:text-5xl lg:text-6xl ${
                     active === null || active === i
                       ? 'text-ink'
                       : 'text-ink/25'

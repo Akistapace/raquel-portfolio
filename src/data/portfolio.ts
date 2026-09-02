@@ -330,7 +330,20 @@ export const projects: Project[] = [
     gallery: [
       { type: 'video', src: asset('/assets/idv-redes.mp4') },
       { type: 'video', src: asset('/assets/idv-redes-1.mp4') },
+      // { type: 'video', src: asset('/assets/carrossel-8.mp4') },
     ],
+  },
+  {
+    id: 'consultoria-redes-sociais',
+    title: 'Consultoria de redes sociais',
+    category: 'Estratégia',
+    year: 'Perfil',
+    description:
+      'Te ajudo a virar a chave com as melhorias necessárias em seu perfil para deixá-lo visualmente atrativo, estratégico e pronto para conectar com as pessoas certas.',
+    image: asset('/assets/consultoria-redes-sociais.png'),
+    hue: '#F4C7D8',
+    platforms: ['Instagram'],
+    gallery: [{ type: 'image', src: asset('/assets/consultoria-redes-sociais.png') }],
   },
   {
     id: 'identidade-visual',
