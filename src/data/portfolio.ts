@@ -167,7 +167,7 @@ export const projects: Project[] = [
           asset('/assets/carrossel-cilios-3.jpg'),
           asset('/assets/carrossel-cilios-4.jpg'),
           asset('/assets/carrossel-cilios-5.jpg'),
-          asset('/assets/carrossel-cilios-6.jpg'),
+          asset('/assets/carrossel-cilios-6.jpeg'),
         ],
       },
       
@@ -264,7 +264,7 @@ export const projects: Project[] = [
     hue: '#F6CFE5',
     platforms: ['YouTube'],
     gallery: [
-      { type: 'video', src: asset('/assets/youtube-2.mp4') },
+      { type: 'video', src: asset('/assets/video-1.mp4') },
       { type: 'youtube', id: 'omaVr5AFUlY' },
       { type: 'youtube', id: 'ksMpTcc0oBg' },
       { type: 'youtube', id: 'p19gm7Q_vgQ' },
@@ -292,7 +292,7 @@ export const projects: Project[] = [
       {
         type: 'link',
         url: 'https://www.facebook.com/share/v/1Ejgdcx4VS/',
-        thumb: asset('/assets/fb-1.jpeg'),
+        thumb: asset('/assets/fb-1.jpg'),
       },
     ],
   },
@@ -332,7 +332,7 @@ export const projects: Project[] = [
     video: asset('/assets/ebook-1.mp4'),
     hue: '#EFA5CC',
     gallery: [
-      { type: 'video', src: asset('/assets/ebook-1.mp4') },
+      { type: 'video', src: asset('/assets/ebook.mp4') },
       { type: 'video', src: asset('/assets/prod-digital-1.mp4') },
     ],
   },
@@ -350,7 +350,7 @@ export const projects: Project[] = [
     gallery: [
       { type: 'video', src: asset('/assets/idv-redes.mp4') },
       { type: 'video', src: asset('/assets/idv-redes-1.mp4') },
-      // { type: 'video', src: asset('/assets/carrossel-8.mp4') },
+      { type: 'video', src: asset('/assets/idv-redes-3.mp4') },
     ],
   },
   {
@@ -376,7 +376,7 @@ export const projects: Project[] = [
     hue: '#B9E3D8',
     gallery: [
       { type: 'video', src: asset('/assets/identidade-visual-1.mp4') },
-      { type: 'image', src: asset('/assets/identidade-visual-logo.jpeg') },
+      // { type: 'image', src: asset('/assets/identidade-visual-logo.jpeg') },
       { type: 'image', src: asset('/assets/identidade-visual-cartao-1.jpeg') },
       { type: 'image', src: asset('/assets/identidade-visual-cartao-2.jpeg') },
       { type: 'image', src: asset('/assets/identidade-visual-cartao.jpeg') },

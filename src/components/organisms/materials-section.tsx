@@ -122,6 +122,14 @@ export function MaterialsSection() {
     lenis?.stop()
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setFocused(null)
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault()
+        moveFocused(-1)
+      }
+      if (e.key === 'ArrowRight') {
+        e.preventDefault()
+        moveFocused(1)
+      }
     }
     window.addEventListener('keydown', onKey)
     return () => {
@@ -415,7 +423,7 @@ export function MaterialsSection() {
                     type="button"
                     aria-label="Anterior"
                     onClick={() => moveFocused(-1)}
-                    className="absolute left-4 flex h-12 w-12 items-center justify-center rounded-full border-2 border-paper bg-ink/60 text-paper hover:bg-pink hover:text-ink"
+                    className="absolute left-4 z-10 flex h-12 w-12 items-center justify-center rounded-full border-2 border-paper bg-ink/60 text-paper hover:bg-pink hover:text-ink"
                   >
                     <ChevronLeft className="h-5 w-5" strokeWidth={2.5} />
                   </button>
@@ -423,7 +431,7 @@ export function MaterialsSection() {
                     type="button"
                     aria-label="Próximo"
                     onClick={() => moveFocused(1)}
-                    className="absolute right-4 flex h-12 w-12 items-center justify-center rounded-full border-2 border-paper bg-ink/60 text-paper hover:bg-pink hover:text-ink"
+                    className="absolute right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full border-2 border-paper bg-ink/60 text-paper hover:bg-pink hover:text-ink"
                   >
                     <ChevronRight className="h-5 w-5" strokeWidth={2.5} />
                   </button>
