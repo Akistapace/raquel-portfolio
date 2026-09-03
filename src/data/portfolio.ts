@@ -49,15 +49,17 @@ export const profile = {
   ],
 }
 
+type MediaThumb = { thumb?: string }
+
 export type ProjectMedia =
-  | { type: 'video'; src: string }
-  | { type: 'image'; src: string }
+  | ({ type: 'video'; src: string } & MediaThumb)
+  | ({ type: 'image'; src: string } & MediaThumb)
   /** sequência de imagens de 1 post carrossel do Instagram — várias imagens, 1 item só */
-  | { type: 'carousel'; images: string[] }
+  | ({ type: 'carousel'; images: string[] } & MediaThumb)
   /** vídeo hospedado no YouTube — clicar abre o vídeo original em nova aba */
-  | { type: 'youtube'; id: string }
+  | ({ type: 'youtube'; id: string } & MediaThumb)
   /** vídeo hospedado fora (ex: Facebook) — clicar abre o link original em nova aba */
-  | { type: 'link'; url: string }
+  | ({ type: 'link'; url: string } & MediaThumb)
 
 export type Project = {
   id: string
@@ -92,6 +94,16 @@ export const projects: Project[] = [
     gallery: [
       { type: 'video', src: asset('/assets/reels-2.mp4') },
       { type: 'video', src: asset('/assets/video-reels.mp4') },
+      { type: 'video', src: asset('/assets/reels-02.mp4') },
+      { type: 'video', src: asset('/assets/reels-3.mp4') },
+      { type: 'video', src: asset('/assets/reels-4.mp4') },
+      { type: 'video', src: asset('/assets/reels-5.mp4') },
+      { type: 'video', src: asset('/assets/reels-6.mp4') },
+      { type: 'video', src: asset('/assets/reels-1.mp4') },
+      { type: 'video', src: asset('/assets/reels-7.mp4') },
+      { type: 'video', src: asset('/assets/reels-8.mp4') },
+      { type: 'video', src: asset('/assets/reels-9.mp4') },
+      { type: 'video', src: asset('/assets/reels-10.mp4') },
     ],
   },
   {
@@ -229,14 +241,14 @@ export const projects: Project[] = [
       { type: 'image', src: asset('/assets/carrossel-post-8.jpeg') },
       { type: 'image', src: asset('/assets/criativos.jpeg') },
       { type: 'image', src: asset('/assets/carrossel-post-10.jpeg') },
-      { type: 'image', src: asset('/assets/criativo-1.jpeg') },
       {
         type: 'carousel',
         images: [
-          asset('/assets/criativo-carrossel-1.jpeg'),
-          asset('/assets/criativo-carrossel-2.jpeg'),
-          asset('/assets/criativo-carrossel-3.jpeg'),
           asset('/assets/criativo-carrossel-4.jpeg'),
+          asset('/assets/criativo-carrossel-3.jpeg'),
+          asset('/assets/criativo-carrossel-2.jpeg'),
+          asset('/assets/criativo-carrossel-1.jpeg'),
+          asset('/assets/criativo-1.jpeg'),
         ],
       },
     ],
@@ -272,8 +284,16 @@ export const projects: Project[] = [
     platforms: ['YouTube', 'Facebook'],
     gallery: [
       { type: 'youtube', id: 'RfcY2D8Pn38' },
-      { type: 'youtube', id: 'iJ-FeT01pnI' },
-      { type: 'link', url: 'https://www.facebook.com/share/v/1Ejgdcx4VS/' },
+      { 
+        type: 'youtube',
+        id: 'iJ-FeT01pnI',
+        thumb: asset('/assets/thumb-1.jpeg'),
+      },
+      {
+        type: 'link',
+        url: 'https://www.facebook.com/share/v/1Ejgdcx4VS/',
+        thumb: asset('/assets/fb-1.jpeg'),
+      },
     ],
   },
   {

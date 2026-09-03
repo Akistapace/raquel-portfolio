@@ -56,6 +56,7 @@ export function CyclingMedia({
         <video
           key={current.src}
           src={current.src}
+          poster={current.thumb}
           muted
           loop
           autoPlay

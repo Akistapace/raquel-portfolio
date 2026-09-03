@@ -2,6 +2,8 @@ import type { ProjectMedia } from '@/data/portfolio'
 
 /** Imagem de capa pra qualquer tipo de mídia da galeria — usada na grid e no preview cíclico. */
 export function mediaCoverSrc(media: ProjectMedia): string | undefined {
+  if (media.thumb) return media.thumb
+
   switch (media.type) {
     case 'video':
     case 'image':

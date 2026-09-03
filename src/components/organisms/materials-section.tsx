@@ -276,7 +276,15 @@ export function MaterialsSection() {
                         const tileContent = (
                           <>
                             {media.type === 'video' ? (
-                              <video src={media.src} muted loop autoPlay playsInline className={mediaClassName} />
+                              <video
+                                src={media.src}
+                                poster={media.thumb}
+                                muted
+                                loop
+                                autoPlay
+                                playsInline
+                                className={mediaClassName}
+                              />
                             ) : (
                               <PlaceholderMedia
                                 src={coverSrc}
